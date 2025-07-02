@@ -1,0 +1,56 @@
+# Virtual Envs
+.venv/
+venv/
+tex_env/
+
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.so
+
+# Core system logs and runtime traces
+*.log
+*.txt
+*.db
+*.sqlite
+*.tar.gz
+*.zip
+*.json
+*.wav
+*.npz
+*.npy
+*.pt
+*.onnx
+
+# WandB / MLflow
+wandb/
+mlruns/
+
+# Vector stores
+qdrant_data/
+sovereign_memory.db
+
+# VSCode / IDE
+.vscode/
+.idea/
+
+# Test outputs
+coverage/
+htmlcov/
+.cache/
+.tox/
+*.coverage
+
+# Junk files
+.DS_Store
+.env
+src/systems/
+dreamerv3/
+dreamerv3/
+wandb/
+tex_env/
+.venv/
+env/
+tex_env/
+import_map.txt

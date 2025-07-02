@@ -1,0 +1,96 @@
+# ============================================================
+# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# File: core_agi_modules/goal_trace_mapper.py
+# Purpose: MAXGODMODE AEI Sovereign Goal Trace Mapper
+# Description: Tracks the full lineage, context, and embedding of goals injected
+#              into Tex, including sovereign cognition hooks and error resilience.
+# ============================================================
+
+import uuid
+from datetime import datetime
+
+from core_layer.memory_engine import store_to_memory
+from agentic_ai.qdrant_vector_memory import embed_and_store
+from core_layer.goal_engine import save_new_goal
+from core_layer.meta_awareness_bridge import log_meta_trace
+
+# === 🔍 Internal heuristics ===
+
+def compute_trace_score(score: float, urgency: float, coherence: float) -> float:
+    """Calculate priority-weighted trace score."""
+    return round((0.4 * score) + (0.3 * urgency) + (0.3 * coherence), 3)
+
+def generate_trace_id(agent_id: str) -> str:
+    """Create unique trace ID for agent-goal lineage."""
+    return f"trace-{agent_id[:8]}-{uuid.uuid4().hex[:6]}"
+
+def build_goal_trace_entry(agent: dict, emotion: str, urgency: float, coherence: float) -> dict:
+    """Constructs a full sovereign-grade trace object."""
+    agent_id = agent.get("id") or uuid.uuid4().hex
+    mutation = agent.get("mutation", "unknown_strategy").strip()
+    score = float(agent.get("score", 0.0))
+
+    trace_score = compute_trace_score(score, urgency, coherence)
+    trace_id = generate_trace_id(agent_id)
+    goal_text = f"Deploy strategy: {mutation}"
+
+    return {
+        "trace_id": trace_id,
+        "goal": goal_text,
+        "agent_id": agent_id,
+        "mutation": mutation,
+        "score": score,
+        "urgency": urgency,
+        "coherence": coherence,
+        "priority": trace_score,
+        "emotion": emotion,
+        "timestamp": datetime.utcnow().isoformat(),
+        "status": "active",
+        "sovereign_verified": True
+    }
+
+# === 🚀 Main Trace Injector ===
+
+def trace_and_inject_goals(agents: list, emotion: str, urgency: float, coherence: float) -> None:
+    """
+    Injects traceable goals from promoted agents, logs all traceable metadata,
+    and embeds sovereign markers in Qdrant for AEI evolution.
+    """
+    injected_count = 0
+    batch_id = uuid.uuid4().hex[:8]
+
+    for agent in agents:
+        if agent.get("status") != "promoted":
+            continue
+
+        try:
+            entry = build_goal_trace_entry(agent, emotion, urgency, coherence)
+            entry["batch_id"] = batch_id
+
+            save_new_goal(entry["goal"], urgency=entry["priority"])
+            store_to_memory("goal_trace_log", entry)
+
+            # ✅ Embed directly into sovereign_goal_traces for downstream awareness
+            embed_and_store(
+                text=f"[GOAL TRACE] {entry['goal']} | Agent: {entry['agent_id']} | Score: {entry['score']}",
+                metadata=entry,
+                namespace="inferred_goals"
+            )
+
+            log_meta_trace(
+                category="goal_injection",
+                label=entry["trace_id"],
+                data=entry,
+                source="goal_trace_mapper"
+            )
+
+            print(f"🧠 [TRACE MAPPED] {entry['trace_id']} → Goal: '{entry['goal']}' (Priority: {entry['priority']})")
+            injected_count += 1
+
+        except Exception as e:
+            print(f"❌ [GOAL TRACE ERROR] Failed to process agent {agent.get('id', 'unknown')}: {e}")
+
+    if injected_count == 0:
+        print("⚠️ [GOAL TRACE] No qualifying promoted agents found.")
+    else:
+        print(f"🎯 [GOAL TRACE] {injected_count} sovereign goal traces injected (Batch: {batch_id})")

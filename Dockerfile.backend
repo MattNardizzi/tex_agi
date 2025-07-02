@@ -1,0 +1,17 @@
+# Use a slim base with Python 3.11
+FROM python:3.11-slim
+
+# Create app directory
+WORKDIR /app
+
+# Copy dependency file
+COPY requirements.txt .
+
+# Install Python deps (adjust this for poetry if needed)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of your app
+COPY . .
+
+# Run your Tex backend (replace this with your entrypoint)
+CMD ["python", "main.py"]

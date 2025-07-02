@@ -1,0 +1,53 @@
+# Python + system noise
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.DS_Store
+*.so
+
+# Logs + artifacts
+*.log
+logs/
+*.out
+*.err
+
+# Checkpoints and weights
+*.ckpt
+*.pt
+*.bin
+*.npy
+*.pkl
+*.h5
+
+# Env
+venv/
+tex_env/
+.env
+.env.*
+
+# ML + monitoring
+wandb/
+mlruns/
+import_map.txt
+
+# Notebooks + temp
+.ipynb_checkpoints/
+*.ipynb
+*.sqlite3
+
+# Node (UI)
+node_modules/
+*.tsbuildinfo
+build/
+dist/
+.cache/
+
+# IDE/Tooling
+.vscode/
+.idea/
+*.swp
+
+# Docker
+Dockerfile.old
+*.tar

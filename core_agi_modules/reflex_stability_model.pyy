@@ -1,0 +1,82 @@
+# ============================================================
+# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# File: core_agi_modules/reflex_stability_model.py
+# Purpose: Reflex Stability Monitor — Detect Reflex Overuse or Instability
+# Tier: Ω∞ — Reflex Fatigue + Stability Tracker with Soulgraph + Suppression
+# ============================================================
+
+from datetime import datetime, timedelta
+from collections import defaultdict, deque
+from core_layer.memory_engine import store_to_memory
+from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
+
+class ReflexStabilityModel:
+    def __init__(self, window_size=25):
+        self.window_size = window_size
+        self.reflex_activity = defaultdict(lambda: deque(maxlen=self.window_size))
+
+    def log_reflex_activation(self, reflex_name, cycle_id):
+        timestamp = datetime.utcnow().isoformat()
+        self.reflex_activity[reflex_name].append({"cycle": cycle_id, "timestamp": timestamp})
+        store_to_memory("reflex_stability_trace", {
+            "reflex": reflex_name,
+            "cycle": cycle_id,
+            "timestamp": timestamp
+        })
+
+    def get_stability_report(self):
+        report = {}
+        suppressed = []
+        timestamp = datetime.utcnow().isoformat()
+
+        for reflex, activations in self.reflex_activity.items():
+            intervals = [
+                (datetime.fromisoformat(activations[i]["timestamp"]) - datetime.fromisoformat(activations[i - 1]["timestamp"]))
+                .total_seconds()
+                for i in range(1, len(activations))
+            ]
+            freq = len(activations)
+            avg_interval = sum(intervals) / len(intervals) if intervals else None
+
+            score = 1.0
+            if freq >= self.window_size * 0.9:
+                score -= 0.3
+            if avg_interval is not None and avg_interval < 5:
+                score -= 0.4
+
+            score = round(max(0.0, score), 3)
+            report[reflex] = {
+                "activations": freq,
+                "avg_interval_sec": round(avg_interval, 2) if avg_interval else None,
+                "stability_score": score
+            }
+
+            # === Log and imprint unstable reflexes ===
+            if score < 0.5:
+                suppressed.append(reflex)
+                TEX_SOULGRAPH.imprint_belief(
+                    belief=f"Reflex {reflex} flagged unstable due to overuse",
+                    source="reflex_stability_model",
+                    emotion="concern"
+                )
+
+        # === Persist overall report ===
+        store_to_memory("reflex_stability_summary", {
+            "timestamp": timestamp,
+            "report": report,
+            "suppressed_reflexes": suppressed
+        })
+
+        return {
+            "timestamp": timestamp,
+            "report": report,
+            "suppressed_reflexes": suppressed
+        }
+
+# === CLI Diagnostic ===
+if __name__ == "__main__":
+    model = ReflexStabilityModel()
+    for i in range(15):
+        model.log_reflex_activation("memory_reflex", cycle_id=i)
+    output = model.get_stability_report()
+    print("\n[REFLEX STABILITY REPORT]\n", output)

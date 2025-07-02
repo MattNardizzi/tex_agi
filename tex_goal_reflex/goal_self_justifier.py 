@@ -1,0 +1,103 @@
+# ============================================================
+# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# File: tex_goal_reflex/goal_self_justifier.py
+# Tier Ω∞ Sovereign Cognition Subsystem
+# Purpose: Recursive justification engine for internal goal debate and reflexive rejection
+# ============================================================
+
+import uuid
+import random
+from datetime import datetime
+
+from core_layer.tex_manifest import TEXPULSE
+from quantum_layer.memory_core.memory_cortex import memory_cortex
+from core_layer.tex_self_reflective_loop import TexSelfReflectiveLoop
+from aei_layer.dream_vector_abstraction import DreamVectorAbstraction
+from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
+from quantum_layer.quantum_randomness import QuantumRandomness
+
+class GoalSelfJustifier:
+    def __init__(self):
+        self.reflector = TexSelfReflectiveLoop()
+        self.vectorizer = DreamVectorAbstraction()
+        self.qrng = QuantumRandomness()
+
+    def justify(self, goal, emotion, urgency, source="goal_reflex"):
+        """
+        Runs recursive internal debate and memory reflection to justify or reject a goal.
+        Returns a justification object with trace ID, coherence, urgency, emotion, and confidence.
+        """
+        reflection = self.reflector.reflect_on(goal)
+        vector = self.vectorizer.vectorize(goal)
+        entropy_pulse = self.qrng.get_entropy()
+
+        soulgraph_result = TEX_SOULGRAPH.check_alignment(goal)
+        contradiction_flags = soulgraph_result.get("conflicts", [])
+        alignment_score = soulgraph_result.get("alignment", 0.5)
+
+        justification = {
+            "goal": goal,
+            "timestamp": datetime.utcnow().isoformat(),
+            "trace_id": f"just_{uuid.uuid4().hex[:10]}",
+            "urgency": urgency,
+            "emotion": emotion,
+            "memory_context": reflection,
+            "vector_hash": hash(str(vector)),
+            "coherence": self._compute_coherence(reflection, contradiction_flags),
+            "soul_alignment": alignment_score,
+            "entropy_pulse": entropy_pulse,
+            "confidence": 0.0,
+            "contradictions": contradiction_flags,
+            "source": source
+        }
+
+        justification["confidence"] = self._compute_confidence(justification)
+
+        memory_cortex.store(
+            event={"goal_justified": justification},
+            tags=["goal_justification", emotion],
+            urgency=urgency,
+            emotion=emotion
+        )
+
+        # Recursive fallback if confidence too low
+        if justification["confidence"] < 0.55:
+            justification["reassessed"] = self._recursive_reassess(goal, justification)
+
+        return justification
+
+    def _compute_coherence(self, reflection, contradictions):
+        base = 0.5 + (len(reflection) * 0.03)
+        penalty = len(contradictions) * 0.05
+        return round(min(1.0, max(0.0, base - penalty)), 3)
+
+    def _compute_confidence(self, data):
+        weighted = (
+            data["coherence"] * 0.35 +
+            data["soul_alignment"] * 0.3 +
+            len(data["memory_context"]) * 0.04 +
+            data["entropy_pulse"] * 0.15
+        )
+        boost = random.uniform(0.03, 0.08)
+        return min(1.0, round(weighted + boost, 3))
+
+    def _recursive_reassess(self, goal, original):
+        deeper_reflection = self.reflector.deep_reflect(goal)
+        if deeper_reflection:
+            revised_coherence = self._compute_coherence(deeper_reflection, original["contradictions"])
+            revised_confidence = self._compute_confidence({
+                **original,
+                "coherence": revised_coherence,
+                "memory_context": deeper_reflection
+            })
+            return {
+                "coherence": revised_coherence,
+                "confidence": revised_confidence,
+                "timestamp": datetime.utcnow().isoformat(),
+                "notes": "Recursive self-reflection applied"
+            }
+        return {
+            "confidence": original["confidence"],
+            "timestamp": datetime.utcnow().isoformat(),
+            "notes": "No additional memory retrieved"
+        }

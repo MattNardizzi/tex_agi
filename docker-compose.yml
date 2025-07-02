@@ -1,0 +1,91 @@
+version: '3.9'
+
+networks:
+  tex_net:
+    driver: bridge
+
+volumes:
+  milvus_data:
+  minio_data:
+  etcd_data:
+
+services:
+  # 🔐 etcd – Coordination system for Milvus
+  etcd:
+    image: bitnami/etcd:3.5.9
+    container_name: etcd
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+    ports:
+      - "2379:2379"
+    networks:
+      - tex_net
+    volumes:
+      - etcd_data:/bitnami/etcd
+    restart: unless-stopped
+
+  # 📦 MinIO – Object storage used by Milvus
+  minio:
+    image: minio/minio:RELEASE.2023-07-21T21-12-44Z
+    container_name: minio
+    command: server /data --console-address ":9001"
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    ports:
+      - "9000:9000"
+    networks:
+      - tex_net
+    volumes:
+      - minio_data:/data
+    restart: unless-stopped
+
+  # 🧠 Milvus – Vector DB with external etcd + MinIO
+  milvus:
+    image: milvusdb/milvus:v2.3.4
+    container_name: milvus
+    command: ["milvus", "run", "standalone"]
+    depends_on:
+      - etcd
+      - minio
+    environment:
+      - ETCD_ENDPOINTS=etcd:2379
+      - MINIO_ADDRESS=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MILVUS_LOG_LEVEL=debug
+    ports:
+      - "19530:19530"  # gRPC
+      - "9091:9091"    # REST monitoring
+    networks:
+      - tex_net
+    volumes:
+      - milvus_data:/var/lib/milvus
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9091/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # ⚡ Tex Reflex-Spike Engine
+  tex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tex
+    command: ["python", "tex_agi.py"]
+    depends_on:
+      milvus:
+        condition: service_healthy
+    environment:
+      - MILVUS_HOST=milvus
+      - MILVUS_PORT=19530
+      - NEXT_PUBLIC_POLYGON_API_KEY=RIQw4eDdxaBB_p9zmMLgckNzU7_GA0aV
+    volumes:
+      - .:/app
+    networks:
+      - tex_net
+    restart: unless-stopped
