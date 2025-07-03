@@ -11,6 +11,7 @@ import asyncio
 from datetime import datetime
 
 from tex_signal_spine import dispatch_signal
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from core_layer.tex_manifest import TEXPULSE
 from quantum_layer.chronofabric import encode_event_to_fabric
 from agentic_ai.sovereign_memory import sovereign_memory
@@ -40,6 +41,15 @@ async def run_demo_reality_fork_override(signal=None):
     emotion = TEXPULSE.get("emotion", "conflicted")
 
     belief = "Fed sentiment and real-time market behavior are epistemically incompatible."
+
+        # Sovereign Reflex Spike Evaluation — TEX-Ø
+    if urgency > 0.82 and entropy > 0.74:
+        await chrono_ontogenesis_core({
+            "summary": "reality fork contradiction spike",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "demo_reality_fork_override"
+        })
 
     # === Step 1: Justify the Belief ===
     justifier = BeliefJustifier()

@@ -9,6 +9,7 @@
 import asyncio
 from datetime import datetime
 from tex_signal_spine import dispatch_signal, register
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from agentic_ai.sovereign_memory import sovereign_memory
 from quantum_layer.chronofabric import encode_event_to_fabric
 from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
@@ -33,6 +34,15 @@ async def run_demo_world_model_simulation():
     urgency = TEXPULSE.get("urgency", 0.77)
     entropy = TEXPULSE.get("entropy", 0.68)
     emotion = TEXPULSE.get("emotion", "reflective")
+
+        # Sovereign Spike Reflex: ChronoOntogenic Fused Evaluation
+    if urgency > 0.75 and entropy > 0.65:
+        await chrono_ontogenesis_core({
+            "summary": "world model simulation contradiction threshold",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "demo_world_model_simulation"
+        })
 
     await broadcast_update("worldmodel:start")
 

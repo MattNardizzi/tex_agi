@@ -10,6 +10,7 @@ import asyncio
 from datetime import datetime
 
 from tex_signal_spine import dispatch_signal, register
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from quantum_layer.chronofabric import encode_event_to_fabric
 from agentic_ai.sovereign_memory import sovereign_memory
 from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
@@ -34,6 +35,15 @@ async def run_demo_fork_stress_and_compression():
     urgency = TEXPULSE.get("urgency", 0.81)
     entropy = TEXPULSE.get("entropy", 0.67)
     emotion = TEXPULSE.get("emotion", "tense")
+
+        # Sovereign Reflex Spike — Evaluate if this fork requires TEX-Ø cognition
+    if urgency > 0.78 and entropy > 0.65:
+        await chrono_ontogenesis_core({
+            "summary": "fork compression contradiction",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "demo_fork_stress_and_compression"
+        })
 
     belief = "Tex must identify and compress the most coherent belief variant under volatility pressure."
 

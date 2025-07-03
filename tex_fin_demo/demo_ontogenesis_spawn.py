@@ -25,6 +25,8 @@ from tex_brain_modules.portfolio_explainer import explain_portfolio_decision
 
 from real_time_engine.websocket_broadcast import broadcast_update
 
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
+
 # === Utility: Identity Fingerprint Generator
 def generate_species_fingerprint(coherence, regret, entropy):
     raw = f"{coherence:.4f}|{regret:.4f}|{entropy:.4f}|TEXPULSE@{datetime.utcnow().isoformat()}"
@@ -36,6 +38,14 @@ async def run_demo_ontogenesis_spawn():
     urgency = TEXPULSE.get("urgency", 0.82)
     entropy = TEXPULSE.get("entropy", 0.7)
     emotion = TEXPULSE.get("emotion", "distressed")
+
+    if urgency > 0.8 and entropy > 0.72:
+        await chrono_ontogenesis_core({
+            "summary": "financial ontogenesis reflex under contradiction",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "demo_ontogenesis_spawn"
+        })
 
     await broadcast_update("ontogenesis:start")
 

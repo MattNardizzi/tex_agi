@@ -11,6 +11,7 @@ from datetime import datetime
 import asyncio
 
 from tex_signal_spine import dispatch_signal, register
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from agentic_ai.sovereign_memory import sovereign_memory
 from quantum_layer.chronofabric import encode_event_to_fabric
 from core_layer.tex_manifest import TEXPULSE
@@ -40,6 +41,15 @@ async def run_aei_lineage_with_financial_evolution():
     urgency = TEXPULSE.get("urgency", 0.84)
     entropy = TEXPULSE.get("entropy", 0.66)
     emotion = TEXPULSE.get("emotion", "evolving")
+    
+        # TEX-Ø Reflex Spike — Evaluate belief survivability under evolution pressure
+    if urgency > 0.8 and entropy > 0.64:
+        await chrono_ontogenesis_core({
+            "summary": "cognitive lineage fork evaluation",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "aei_lineage_with_financial_evolution"
+        })
 
     belief = "Tex must evolve its cognitive lineage under real financial contradiction."
 

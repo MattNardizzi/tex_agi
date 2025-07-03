@@ -9,6 +9,7 @@
 import time
 import asyncio
 from tex_signal_spine import dispatch_signal
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from core_layer.tex_manifest import TEXPULSE
 from utils.logging_utils import log
 from tex_brain_modules.portfolio_explainer import explain_portfolio_decision
@@ -34,7 +35,7 @@ def register_financial_reflex_demos(register):
     register_fork_stress_and_compression(register)
     register_aei_lineage_with_financial_evolution(register)
 
-    log.success("✅ [MASTER ORCHESTRATOR] All financial reflex demos registered.")
+    log.info("✅ [MASTER ORCHESTRATOR] All financial reflex demos registered.")
 
 # === Reflex Execution Hub ===
 async def run_fin_reflex_cycle():
@@ -42,6 +43,15 @@ async def run_fin_reflex_cycle():
     entropy = float(TEXPULSE.get("entropy", 0.79))
     tension = float(TEXPULSE.get("resonance_tension", 0.0))
     emotion = TEXPULSE.get("emotion", "strategic")
+
+        # 🧠 TEX-Ø Spike Reflex Trigger — sovereign AGI evaluation before reflex sequence
+    if urgency > 0.88 and entropy > 0.75:
+        await chrono_ontogenesis_core({
+            "summary": "financial orchestrator pre-reflex spike",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "master_fin_reflex_orchestrator"
+        })
 
     await broadcast_update("orchestrator:start")
     log.critical("🚨 [TEX-FIN ORCHESTRATOR] Initiating AGI reflex arc...")

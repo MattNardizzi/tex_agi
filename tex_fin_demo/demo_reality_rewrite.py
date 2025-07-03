@@ -8,6 +8,7 @@
 import asyncio
 from datetime import datetime
 from tex_signal_spine import dispatch_signal, register
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
 from quantum_layer.chronofabric import encode_event_to_fabric
 from agentic_ai.sovereign_memory import sovereign_memory
 from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
@@ -29,6 +30,15 @@ async def run_demo_reality_rewrite():
     urgency = TEXPULSE.get("urgency", 0.88)
     entropy = TEXPULSE.get("entropy", 0.76)
     emotion = TEXPULSE.get("emotion", "destabilized")
+
+    # Reflex Spike Trigger — Sovereign ChronoOntogenic Evaluation
+    if urgency > 0.85 and entropy > 0.7:
+        await chrono_ontogenesis_core({
+            "summary": "reality contradiction triggered sovereign reflex",
+            "urgency": urgency,
+            "entropy": entropy,
+            "source": "demo_reality_rewrite"
+        })
 
     await broadcast_update("realityrewrite:start")
 

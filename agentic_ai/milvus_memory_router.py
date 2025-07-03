@@ -2,22 +2,19 @@
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: agentic_ai/milvus_memory_router.py
 # Tier: ΩΩΩΩΩ∞ — Reflexive Quantum Memory Router (ChronoFusion + Full Milvus)
-# Purpose: Emotionally entangled, identity-aware vector memory using full Milvus for scalable AGI cognition.
+# Purpose: Emotionally entangled, identity-aware vector memory using Zilliz Cloud REST API
 # ============================================================
 
 import os
 import time
 import uuid
 import traceback
+import requests
 from datetime import datetime, timedelta
 from typing import List, Dict, Optional, Union
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from pymilvus import (
-    connections, Collection, CollectionSchema,
-    FieldSchema, DataType, utility
-)
 
 # === Configuration ===
 COLLECTION_NAME = "tex_memory"
@@ -26,87 +23,62 @@ EMBED_MODEL = "all-MiniLM-L6-v2"
 EMBEDDER = SentenceTransformer(EMBED_MODEL)
 VECTOR_DIM = EMBED_DIM + 4  # text + emotion
 
-# === Milvus Connection ===
-MILVUS_HOST = os.getenv("MILVUS_HOST")
-MILVUS_PORT = os.getenv("MILVUS_PORT", "19530")
+# === Zilliz REST Config (Hardcoded for now)
+ZILLIZ_API_KEY = "1bf03e5873fc32b920f11e9e0c32ec0cbcb00cdeff56b6e918e95c6e2664dca8e2f9140bc9b022dc967bd8bf2b9410ef3c3b32be"
+ZILLIZ_ENDPOINT = "https://in03-c2caa394358c084.serverless.gcp-us-west1.cloud.zilliz.com"
 
-if not MILVUS_HOST:
-    raise EnvironmentError("❌ MILVUS_HOST environment variable is not set.")
-
-connected = False
-collection = None
-for attempt in range(5):
-    try:
-        connections.connect(host=MILVUS_HOST, port=MILVUS_PORT)
-        connected = True
-        print(f"✅ [MILVUS CONNECTED] {MILVUS_HOST}:{MILVUS_PORT}")
-        break
-    except Exception:
-        print(f"⏳ [RETRY {attempt+1}/5] Milvus not ready... retrying in 3s")
-        time.sleep(3)
-
-if not connected:
-    raise ConnectionError(f"❌ Failed to connect to Milvus at {MILVUS_HOST}:{MILVUS_PORT} after 5 attempts.")
-
-# === Schema Initialization ===
-try:
-    fields = [
-        FieldSchema(name="id", dtype=DataType.VARCHAR, is_primary=True, auto_id=False, max_length=64),
-        FieldSchema(name="vector_combined", dtype=DataType.FLOAT_VECTOR, dim=VECTOR_DIM),
-        FieldSchema(name="timestamp", dtype=DataType.VARCHAR, max_length=64),
-        FieldSchema(name="entropy", dtype=DataType.FLOAT),
-        FieldSchema(name="summary", dtype=DataType.VARCHAR, max_length=512),
-        FieldSchema(name="tags", dtype=DataType.VARCHAR, max_length=256)
-    ]
-    schema = CollectionSchema(fields, description="Quantum-aware reflex memory store")
-
-    if not utility.has_collection(COLLECTION_NAME):
-        collection = Collection(name=COLLECTION_NAME, schema=schema)
-        print(f"✅ [MILVUS INIT] Collection created: {COLLECTION_NAME}")
-
-        collection.create_index(
-            field_name="vector_combined",
-            index_params={
-                "index_type": "IVF_FLAT",
-                "metric_type": "COSINE",
-                "params": {"nlist": 1024}
-            }
-        )
-        print("✅ [MILVUS INDEX] Index created on vector_combined")
-    else:
-        collection = Collection(COLLECTION_NAME)
-
-except Exception:
-    print("❌ [MILVUS SCHEMA ERROR]")
-    traceback.print_exc()
-    connected = False
-    collection = None
+HEADERS = {
+    "accept": "application/json",
+    "authorization": f"Bearer {ZILLIZ_API_KEY}",
+    "content-type": "application/json"
+}
 
 # === MEMORY ROUTER ===
 class MilvusMemoryRouter:
     def __init__(self):
-        if collection is None:
-            print("⚠️ [MEMORY ROUTER OFFLINE] Milvus collection is unavailable.")
-            self.collection = None
-        else:
-            self.collection = collection
+        self.endpoint = ZILLIZ_ENDPOINT
+        self.headers = HEADERS
+        self.collection = COLLECTION_NAME
+        if not self._check_collection():
+            self._create_collection()
 
-            # ✅ Index safeguard for existing collections
-            try:
-                if not self.collection.has_index():
-                    print("[⚙️ MILVUS] Index missing — creating index on vector_combined")
-                    self.collection.create_index(
-                        field_name="vector_combined",
-                        index_params={
-                            "index_type": "IVF_FLAT",
-                            "metric_type": "COSINE",
-                            "params": {"nlist": 1024}
-                        }
-                    )
-                    print("✅ [MILVUS] Index successfully created.")
-            except Exception:
-                print("❌ [MILVUS INDEX ERROR]")
-                traceback.print_exc()
+    def _check_collection(self):
+        try:
+            res = requests.post(
+                f"{self.endpoint}/v2/vectordb/collections/list",
+                headers=self.headers,
+                json={}
+            )
+            collections = res.json().get("data", [])
+            return any(c["name"] == self.collection for c in collections)
+        except Exception as e:
+            print(f"❌ [COLLECTION CHECK FAILED] {e}")
+            return False
+
+    def _create_collection(self):
+        try:
+            schema = {
+                "collection_name": self.collection,
+                "dimension": VECTOR_DIM,
+                "metric_type": "COSINE",
+                "fields": [
+                    {"name": "id", "data_type": "VARCHAR", "is_primary": True, "max_length": 64},
+                    {"name": "vector_combined", "data_type": "FLOAT_VECTOR", "dimension": VECTOR_DIM},
+                    {"name": "timestamp", "data_type": "VARCHAR", "max_length": 64},
+                    {"name": "entropy", "data_type": "FLOAT"},
+                    {"name": "summary", "data_type": "VARCHAR", "max_length": 512},
+                    {"name": "tags", "data_type": "VARCHAR", "max_length": 256}
+                ]
+            }
+            res = requests.post(
+                f"{self.endpoint}/v2/vectordb/collections/create",
+                headers=self.headers,
+                json=schema
+            )
+            print(f"✅ [MILVUS INIT] Collection created: {self.collection}")
+        except Exception as e:
+            print("❌ [MILVUS SCHEMA ERROR]")
+            traceback.print_exc()
 
     def embed_text(self, text: str) -> List[float]:
         try:
@@ -116,9 +88,6 @@ class MilvusMemoryRouter:
             return [0.0] * EMBED_DIM
 
     def store(self, text: str, metadata: Dict, vector: Optional[List[float]] = None):
-        if not self.collection:
-            print("⚠️ [MEMORY SKIP] Milvus is offline.")
-            return
         if not text or not isinstance(text, str):
             print("⚠️ [MEMORY SKIP] Invalid text.")
             return
@@ -136,18 +105,25 @@ class MilvusMemoryRouter:
             tags = metadata.get("tags", [])
             tags_str = ",".join(tags) if isinstance(tags, list) else str(tags)
 
-            self.collection.insert([
-                [record_id],
-                [combined_vector],
-                [timestamp],
-                [entropy],
-                [summary],
-                [tags_str]
-            ])
-            self.collection.flush()
+            payload = {
+                "collection_name": self.collection,
+                "data": [{
+                    "id": record_id,
+                    "vector_combined": combined_vector,
+                    "timestamp": timestamp,
+                    "entropy": entropy,
+                    "summary": summary,
+                    "tags": tags_str
+                }]
+            }
+
+            requests.post(
+                f"{self.endpoint}/v2/vectordb/records/insert",
+                headers=self.headers,
+                json=payload
+            )
 
             print(f"🧠 [MEMORY STORED] {record_id} | {summary}")
-
         except Exception:
             print("❌ [STORE ERROR]")
             traceback.print_exc()
@@ -167,44 +143,31 @@ class MilvusMemoryRouter:
         return self.query_by_vector(vector, top_k=top_k)
 
     def query_by_vector(self, vector: List[float], top_k: int = 5):
-        if not self.collection:
-            print("⚠️ [QUERY SKIP] Milvus is offline.")
-            return []
         try:
-            self.collection.load()
             combined = vector + [0.0, 0.0, 0.0, 0.0]
-            results = self.collection.search(
-                data=[combined],
-                anns_field="vector_combined",
-                param={"metric_type": "COSINE", "params": {"nprobe": 10}},
-                limit=top_k,
-                output_fields=["summary", "timestamp", "tags", "entropy"]
+            payload = {
+                "collection_name": self.collection,
+                "vector": combined,
+                "anns_field": "vector_combined",
+                "metric_type": "COSINE",
+                "params": {"nprobe": 10},
+                "limit": top_k,
+                "output_fields": ["summary", "timestamp", "tags", "entropy"]
+            }
+            res = requests.post(
+                f"{self.endpoint}/v2/vectordb/records/search",
+                headers=self.headers,
+                json=payload
             )
-            return results[0]
+            return res.json().get("data", [])
         except Exception:
             print("❌ [QUERY ERROR]")
             traceback.print_exc()
             return []
 
     def recall_recent(self, minutes: int = 5, top_k: int = 10) -> list:
-        if not self.collection:
-            print("⚠️ [RECALL SKIP] Milvus is offline.")
-            return []
-        try:
-            self.collection.load()
-            now = datetime.utcnow()
-            cutoff = (now - timedelta(minutes=minutes)).isoformat()
-            expr = f'timestamp >= \"{cutoff}\"'
-            results = self.collection.query(
-                expr=expr,
-                output_fields=["summary", "tags", "timestamp", "entropy"],
-                limit=top_k
-            )
-            return results
-        except Exception:
-            print("❌ [RECALL ERROR]")
-            traceback.print_exc()
-            return []
+        print("⚠️ [RECALL] REST API does not support direct timestamp filtering.")
+        return []
 
 # === Cortex Export ===
 memory_router = MilvusMemoryRouter()

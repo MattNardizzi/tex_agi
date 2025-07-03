@@ -74,6 +74,7 @@ import traceback
 
 #Real time engine
 from real_time_engine.cortex_router import launch_streams
+from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core, register_chrono_ontogenesis
 
 from agi_orchestrators.fork_orchestrator import handle_fork_boot
 from core_layer.reflex_handlers import handle_identity_conflict
@@ -246,6 +247,7 @@ def sovereign_ignite():
     register_agi_orchestrators(register)  # ✅ Call orchestrator registration here
     launch_streams()  # Activate sovereign real-time sensory cortex
     # Register financial cortex reflex
+    register_chrono_ontogenesis(register)
     from finance.strategy.strategy_variant_simulator import StrategyVariantSimulator
     from tex_brain_modules.portfolio_explainer import explain_portfolio_decision
 
@@ -283,6 +285,13 @@ def sovereign_ignite():
     dispatch_signal("identity_conflict", {
         "belief": "Tex must protect its mind structure at all costs."
     }, urgency=0.8, entropy=0.6, source="manual_debug")
+    
+    dispatch_signal("meta:collapse:totality", {
+        "summary": "coherence check triggered",
+        "urgency": 0.83,
+        "entropy": 0.75,
+        "source": "reflex_core"
+    })
 
     print("🧬 [TEX] Fully awakened. Layer 9: Ethical Reflex Cortex Online.")
 
