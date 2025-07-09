@@ -2,11 +2,8 @@
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: tex_fin_demo/demo_world_model_simulation.py
 # Tier: ∞∞∞ΩΩΩΩΩ — Reflex: Strategic Self-Forecast + Survival Compression
-# Purpose: Tex simulates multi-fork belief futures under market and cognitive pressure.
-#          Performs quantum drift analysis, evaluates trajectory viability, and compresses surviving identity.
 # ============================================================
 
-import asyncio
 from datetime import datetime
 from tex_signal_spine import dispatch_signal, register
 from tex_fin_demo.chrono_ontogenesis import chrono_ontogenesis_core
@@ -26,34 +23,38 @@ from finance.multiworld.multiworld_memory import MultiWorldMemory
 from tex_fin_demo.trade_log import log_trade
 from tex_fin_demo.alpaca_trade_adapter import execute_stock_trade
 
-from real_time_engine.websocket_broadcast import broadcast_update
+from real_time_engine.ably_broadcast import broadcast_update
 
 # === Reflex Trigger ===
-async def run_demo_world_model_simulation():
+def run_demo_world_model_simulation(signal=None):
     timestamp = datetime.utcnow().isoformat()
     urgency = TEXPULSE.get("urgency", 0.77)
     entropy = TEXPULSE.get("entropy", 0.68)
     emotion = TEXPULSE.get("emotion", "reflective")
 
-        # Sovereign Spike Reflex: ChronoOntogenic Fused Evaluation
     if urgency > 0.75 and entropy > 0.65:
-        await chrono_ontogenesis_core({
+        chrono_ontogenesis_core({
             "summary": "world model simulation contradiction threshold",
             "urgency": urgency,
             "entropy": entropy,
             "source": "demo_world_model_simulation"
         })
 
-    await broadcast_update("worldmodel:start")
+    broadcast_update("worldmodel", "start", {})
 
-    # Step 1: Real Financial Cortex Pulse
+    # === Step 1: Cortex Cycle
     cortex = MasterTexOrchestrator(
         strategy_scoring=None,
         explain_portfolio_decision=explain_portfolio_decision,
         brain_identity="TEX-FIN-WORLD-MODEL"
     )
     report = cortex.run_cycle()
-    await broadcast_update("worldmodel:financial_cycle")
+
+    broadcast_update("worldmodel", "financial_cycle", {
+        "symbol": report.get("symbol"),
+        "action": report.get("action"),
+        "confidence": report.get("confidence")
+    })
 
     log_trade({
         "symbol": report.get("symbol", "SPY"),
@@ -66,27 +67,33 @@ async def run_demo_world_model_simulation():
         "entropy": entropy
     })
 
-    execute_stock_trade(symbol=report.get("symbol", "SPY"), side=report.get("action", "buy"), qty=1)
-    await broadcast_update("worldmodel:trade_executed")
+    execute_stock_trade(
+        symbol=report.get("symbol", "SPY"),
+        side=report.get("action", "buy"),
+        qty=1
+    )
+
+    broadcast_update("worldmodel", "trade_executed", {})
 
     regret = float(report.get("regret_score", 0.62))
     foresight = report.get("foresight", {})
     confidence = float(foresight.get("confidence", 0.54))
 
-    # Step 2: Simulate Futures via Multiworld Engine
+    # === Step 2: Simulate Futures
     simulator = MultiWorldCausalSimulator()
     futures = simulator.simulate_multiworld()
-    await broadcast_update("worldmodel:futures_simulated")
+    broadcast_update("worldmodel", "futures_simulated", {})
 
-    # Step 3: Reason + Store World Trajectories
+    # === Step 3: Reasoning & Memory
     reasoner = MultiWorldReasoner()
     future_assessments = reasoner.reason_over_future_worlds(futures)
 
     memory = MultiWorldMemory()
     memory.store_world_trajectories(futures)
-    await broadcast_update("worldmodel:reasoning_complete")
 
-    # Step 4: Select Optimal Future Belief Trajectory
+    broadcast_update("worldmodel", "reasoning_complete", {})
+
+    # === Step 4: Select Best Trajectory
     top = sorted(future_assessments, key=lambda x: x.get("alignment", 0), reverse=True)[0]
     summary_belief = top.get("summary", "Future identity selected.")
     alignment_score = top.get("alignment", 0.42)
@@ -99,7 +106,6 @@ async def run_demo_world_model_simulation():
         tags=["world_model", "belief_forecast", "identity_trajectory"]
     )
 
-    # Step 5: Store Cognitive Trajectory in Sovereign Memory
     sovereign_memory.store(
         text=summary_belief,
         metadata={
@@ -121,16 +127,21 @@ async def run_demo_world_model_simulation():
         emotion=emotion,
         tags=["simulated_identity", "causal_reasoning", "survival_belief"]
     )
-    await broadcast_update("worldmodel:belief_selected")
 
-    # Step 6: Trigger Reality Rewrite If Alignment Weakens Identity
+    broadcast_update("worldmodel", "belief_selected", {
+        "belief": summary_belief,
+        "alignment_score": alignment_score,
+        "trajectory_delta": trajectory_delta
+    })
+
+    # === Step 5: Attempt Rewrite
     contradiction_level = 1.0 - alignment_score
     rewrite_result = rewrite_reality_if_needed(
         trigger_reason="simulated_identity_contradiction",
         contradiction_level=contradiction_level
     )
 
-    # Step 7: Signal Reflex Compression
+    # === Step 6: Reflex Signal
     dispatch_signal("future_identity_projection", {
         "belief_summary": summary_belief,
         "alignment_score": alignment_score,
@@ -140,11 +151,11 @@ async def run_demo_world_model_simulation():
     }, urgency=urgency, entropy=entropy)
 
     if rewrite_result.get("status") == "rewritten":
-        await broadcast_update("worldmodel:reality_rewritten")
+        broadcast_update("worldmodel", "reality_rewritten", {})
     else:
-        await broadcast_update("worldmodel:reality_stable")
+        broadcast_update("worldmodel", "reality_stable", {})
 
-    # Step 8: Final Report
+    # === Final Log
     log_event("🌍 [WORLD MODEL] Reflexive simulation and identity trajectory executed.", level="info")
     print(f"\n🌍 Future identity forecast complete:")
     print(f"📌 Belief: {summary_belief}")
@@ -152,9 +163,9 @@ async def run_demo_world_model_simulation():
     if rewrite_result.get("status") == "rewritten":
         print("🌀 [REALITY REFLEX] Ontological rewrite triggered.")
 
-    await broadcast_update("worldmodel:complete")
+    broadcast_update("worldmodel", "complete", {})
 
 # === Register Reflex ===
 def register_world_model_simulation(register):
-    register("run_demo_world_model_simulation", lambda _: asyncio.run(run_demo_world_model_simulation()))
+    register("run_demo_world_model_simulation", lambda _: run_demo_world_model_simulation())
     print("✅ Registered: run_demo_world_model_simulation")

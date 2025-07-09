@@ -8,9 +8,9 @@
 from datetime import datetime
 from core_layer.tex_manifest import TEXPULSE
 from agentic_ai.sovereign_memory import sovereign_memory
-from sentence_transformers import SentenceTransformer
+from utils.embedder_loader import load_embedder
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+embedder = load_embedder()
 
 def update_legacy_manifest(event_label="mutation_cycle"):
     try:

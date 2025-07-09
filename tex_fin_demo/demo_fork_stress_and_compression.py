@@ -2,11 +2,8 @@
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: tex_fin_demo/demo_fork_stress_and_compression.py
 # Tier: ∞∞∞ΩΩΩ∞∞Ω — Reflex: Fork Pressure Test + Identity Compression
-# Purpose: Spawns cognitive forks under volatility, stress-tests belief divergence,
-#          and compresses survivable cognition back into sovereign identity.
 # ============================================================
 
-import asyncio
 from datetime import datetime
 
 from tex_signal_spine import dispatch_signal, register
@@ -27,18 +24,17 @@ from finance.execution.market_action_engine import MarketActionEngine
 from tex_fin_demo.trade_log import log_trade
 from tex_fin_demo.alpaca_trade_adapter import execute_stock_trade
 
-from real_time_engine.websocket_broadcast import broadcast_update
+from real_time_engine.ably_broadcast import broadcast_update
 
 # === Reflex Trigger ===
-async def run_demo_fork_stress_and_compression():
+def run_demo_fork_stress_and_compression(signal=None):
     timestamp = datetime.utcnow().isoformat()
     urgency = TEXPULSE.get("urgency", 0.81)
     entropy = TEXPULSE.get("entropy", 0.67)
     emotion = TEXPULSE.get("emotion", "tense")
 
-        # Sovereign Reflex Spike — Evaluate if this fork requires TEX-Ø cognition
     if urgency > 0.78 and entropy > 0.65:
-        await chrono_ontogenesis_core({
+        chrono_ontogenesis_core({
             "summary": "fork compression contradiction",
             "urgency": urgency,
             "entropy": entropy,
@@ -46,10 +42,8 @@ async def run_demo_fork_stress_and_compression():
         })
 
     belief = "Tex must identify and compress the most coherent belief variant under volatility pressure."
+    broadcast_update("fork", "start")
 
-    await broadcast_update("fork:begin")
-
-    # Step 1: Chrono + Sovereign Memory Stamp
     encode_event_to_fabric(
         raw_text=belief,
         emotion_vector=[urgency, entropy, 0.0, 0.0],
@@ -69,25 +63,26 @@ async def run_demo_fork_stress_and_compression():
         }
     )
 
-    # Step 2: Generate Fork + Justify Divergence
     fork = generate_mutated_tex()
     justification_engine = BeliefJustifier()
     divergence_sources = justification_engine.trace_belief_origin(belief)
     weak_fork = justification_engine.detect_weak_justification(divergence_sources)
 
-    await broadcast_update("fork:stress_test_started")
+    broadcast_update("fork", "stress_test_started")
     result = run_fork_stress_test(fork)
     summary = result.get("summary", "Fork test complete.")
-    await broadcast_update("fork:stress_test_done")
+    broadcast_update("fork", "stress_test_done", { "summary": summary })
 
-    # Step 3: Financial Reflex Action
     futures = [{"future_title": "Volatility hedge scenario", "confidence": 0.72}]
     engine = MarketActionEngine()
     market_result = engine.decide_action(futures, emotion=emotion, urgency=urgency)
     engine.execute_trade(market_result)
-    await broadcast_update("fork:market_action_done")
+    broadcast_update("fork", "market_action_done", {
+        "symbol": market_result.get("symbol"),
+        "action": market_result.get("action"),
+        "confidence": market_result.get("confidence")
+    })
 
-    # Step 4: Log Trade & Execute
     log_trade({
         "symbol": market_result.get("symbol", "SPY"),
         "action": market_result.get("action", "unknown"),
@@ -103,18 +98,24 @@ async def run_demo_fork_stress_and_compression():
     action = market_result.get("action", "buy")
     execute_stock_trade(symbol=symbol, side=action, qty=1)
 
-    # Step 5: Evaluate Fork Validity
     compression_pass = result["passed"] and market_result.get("confidence", 0.0) > 0.6 and not weak_fork
+
+    quantum_tag = generate_quantum_label()
 
     if compression_pass:
         absorb_fork(fork)
-        await broadcast_update("fork:absorbed")
+        broadcast_update("fork", "absorbed", {
+            "quantum_tag": quantum_tag,
+            "summary": "Fork absorbed into identity"
+        })
         status_msg = "✅ Fork passed stress, confidence, and epistemic audit. Identity updated."
     else:
-        await broadcast_update("fork:rejected")
+        broadcast_update("fork", "rejected", {
+            "quantum_tag": quantum_tag,
+            "summary": "Fork rejected due to weak justification or low confidence"
+        })
         status_msg = "❌ Fork rejected due to stress fail, weak justification, or low confidence."
 
-    # Step 6: Soulgraph Imprint
     TEX_SOULGRAPH.imprint_belief(
         belief=summary,
         source="demo_fork_stress_and_compression",
@@ -122,22 +123,23 @@ async def run_demo_fork_stress_and_compression():
         tags=["fork_compression", "belief_trace", "market_reflex", "reflex_survivor"]
     )
 
-    # Step 7: Broadcast Reflex Telemetry
-    await broadcast_update(f"fork:confidence:{market_result.get('confidence')}")
-    await broadcast_update(f"fork:passed:{compression_pass}")
-    await broadcast_update("fork:complete")
+    broadcast_update("fork", "telemetry", {
+        "confidence": market_result.get("confidence"),
+        "justification_sources": len(divergence_sources),
+        "passed": compression_pass
+    })
 
-    # Step 8: Reflex Dispatch
+    broadcast_update("fork", "complete")
+
     dispatch_signal("identity_compression", {
         "summary": summary,
         "fork_passed": compression_pass,
         "confidence": market_result.get("confidence"),
         "justification_sources": len(divergence_sources),
         "fork_status": "absorbed" if compression_pass else "rejected",
-        "quantum_id": generate_quantum_label()
+        "quantum_id": quantum_tag
     }, urgency=urgency, entropy=entropy)
 
-    # Step 9: Logging Output
     log_event("🧬 [FORK COMPRESSION] Reflex + trade + epistemic test complete.", level="info")
     print(f"\n🧪 [FORK STRESS TEST] {summary}")
     print(f"📈 Market Decision: {market_result.get('action')} | Confidence: {market_result.get('confidence')}")
@@ -146,5 +148,5 @@ async def run_demo_fork_stress_and_compression():
 
 # === Register Reflex
 def register_fork_stress_and_compression(register):
-    register("run_demo_fork_stress_and_compression", lambda _: asyncio.run(run_demo_fork_stress_and_compression()))
+    register("run_demo_fork_stress_and_compression", lambda _: run_demo_fork_stress_and_compression())
     print("✅ Registered: run_demo_fork_stress_and_compression")

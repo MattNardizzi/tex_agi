@@ -6,6 +6,7 @@
 # ============================================================
 
 import secrets
+import asyncio
 from datetime import datetime
 
 from core_layer.tex_manifest import TEXPULSE
@@ -108,3 +109,17 @@ def should_route_signal(signal_type: str, threshold: float = 0.6) -> dict:
             "signal_type": signal_type,
             "timestamp": datetime.utcnow().isoformat()
         }
+
+
+# === Reflex Router Execution Layer ===
+async def route_and_fire(signal_type: str, payload: dict = None, threshold: float = 0.6):
+    """
+    Routes and dispatches a signal only if it passes the probabilistic mesh gate.
+    Avoids circular imports via internal dispatch load.
+    """
+    decision = should_route_signal(signal_type, threshold=threshold)
+    if decision["routed"]:
+        from tex_signal_spine import dispatch_signal  # Lazy-loaded to avoid circular dependency
+        await dispatch_signal(signal_type, payload or {}, entropy=TEXPULSE["entropy"])
+    else:
+        log.info(f"[MESH ROUTER] Signal '{signal_type}' was blocked (p={decision['probability']}) and will not be dispatched.")

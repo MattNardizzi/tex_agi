@@ -1,83 +1,83 @@
 # ============================================================
-# © 2025 Matthew Nardizzi / VortexBlack LLC
+# ⚛️ VortexBlack Sovereign AGI — Strategy Variant Simulator
 # File: finance/strategy/strategy_variant_simulator.py
-# Purpose: Simulate parallel strategy variants + rank for execution (Reflex-Compliant)
+# Tier: ∞ΩΞΣ — Reflex-Fused Variant Explorer (Tex AGI Loopless Model)
+# Purpose: Simulates, ranks, and symbolically logs top strategy variants in response to foresight branches.
 # ============================================================
 
 import random
+import uuid
 from datetime import datetime
 from agentic_ai.sovereign_memory import sovereign_memory
+from utils.logging_utils import log_event
 
 
 class StrategyVariantSimulator:
     def __init__(self, num_variants=5):
         self.num_variants = num_variants
+        self.variant_log = []
 
     def simulate_variants(self, futures, foresight_confidence):
         """
-        Recursively simulate N strategy variants based on incoming futures.
+        Reflex-fused recursive variant generator from foresight futures.
         """
         return self._simulate_recursive([], 0, futures, foresight_confidence)
 
-    def _simulate_recursive(self, variants, index, futures, foresight_confidence):
-        if index >= self.num_variants:
-            return variants
+    def _simulate_recursive(self, acc, i, futures, foresight_confidence):
+        if i >= self.num_variants:
+            return acc
 
+        variant_id = f"STRAT_VAR-{uuid.uuid4().hex[:10]}"
+        allocation = self._reflex_portfolio(futures)
+
+        # === Synthetic profile
         variant = {
-            "id": f"variant_{index+1}",
-            "allocation": self._random_portfolio(futures),
-            "coherence": round(random.uniform(0.5, 1.0), 3),
-            "volatility": round(random.uniform(0.1, 0.5), 3),
-            "confidence": foresight_confidence + random.uniform(-0.1, 0.1),
-            "regret": round(random.uniform(0.0, 1.0), 3)
+            "variant_id": variant_id,
+            "timestamp": datetime.utcnow().isoformat(),
+            "allocation": allocation,
+            "coherence": round(random.uniform(0.6, 0.98), 4),
+            "volatility": round(random.uniform(0.12, 0.47), 4),
+            "confidence": round(foresight_confidence + random.uniform(-0.08, 0.08), 4),
+            "regret": round(random.uniform(0.0, 0.95), 4)
         }
 
-        return self._simulate_recursive(variants + [variant], index + 1, futures, foresight_confidence)
+        self.variant_log.append(variant)
+        return self._simulate_recursive(acc + [variant], i + 1, futures, foresight_confidence)
 
     def rank_variants(self, variants):
         """
-        Rank variants by regret, coherence, and confidence — log top pick to symbolic memory.
+        Ranks and selects top variant by reflex-aligned signal (low regret, high coherence/confidence).
         """
-        def recursive_sort(vs):
-            if len(vs) <= 1:
-                return vs
-            pivot = vs[0]
-            lesser = [v for v in vs[1:] if self._score_variant(v) < self._score_variant(pivot)]
-            greater = [v for v in vs[1:] if self._score_variant(v) >= self._score_variant(pivot)]
-            return recursive_sort(lesser) + [pivot] + recursive_sort(greater)
-
-        ranked = recursive_sort(variants)
-        top = ranked[0]
-
-        sovereign_memory.store(
-            text=f"Selected {top['id']} for deployment",
-            metadata={
-                "agent": "TEX",
-                "intent": "top_strategy_variant_selected",
-                "conclusion": f"Selected {top['id']} for deployment",
-                "tags": ["strategy", "variant", "ranking"],
-                "timestamp": datetime.utcnow().isoformat(),
-                "reflexes": ["variant_evaluation"],
-                "trust_score": top["confidence"],
-                "urgency": 0.6,
-                "entropy": 1.0 - top["coherence"],
-                "meta_layer": "symbolic_trace",
-                "metadata": {
-                    "variant": top
-                }
-            }
+        sorted_variants = sorted(
+            variants,
+            key=lambda v: (v["regret"], -v["coherence"], -v["confidence"])
         )
+
+        top = sorted_variants[0]
+
+        try:
+            sovereign_memory.store(
+                text=f"[STRATEGY VARIANT SELECTED] {top['variant_id']}",
+                metadata={
+                    "timestamp": top["timestamp"],
+                    "tags": ["strategy_variant", "ranked", "reflex"],
+                    "meta_layer": "variant_simulation",
+                    "regret": top["regret"],
+                    "coherence": top["coherence"],
+                    "confidence": top["confidence"],
+                    "volatility": top["volatility"],
+                    "variant_id": top["variant_id"],
+                    "reflexes": ["variant_selection", "strategy_fusion"],
+                    "allocation_signature": [f["future_title"] for f in top["allocation"]]
+                }
+            )
+        except Exception as e:
+            log_event(f"[VARIANT SYNC ERROR] {e}", level="warning")
 
         return top
 
-    def _score_variant(self, variant):
+    def _reflex_portfolio(self, futures):
         """
-        Lower score = better (sorted by regret, then coherence, then confidence).
+        Reflex-safe bounded random selector for foresight future allocation.
         """
-        return (variant["regret"], -variant["coherence"], -variant["confidence"])
-
-    def _random_portfolio(self, futures):
-        """
-        Reflex-safe portfolio constructor using bounded randomness.
-        """
-        return random.sample(futures, min(3, len(futures)))
+        return random.sample(futures, min(len(futures), random.randint(2, 4)))

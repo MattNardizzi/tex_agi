@@ -6,6 +6,7 @@
 # ============================================================
 
 from datetime import datetime
+import asyncio
 from tex_breathing_cortex.tex_pulse_engine import breathe
 from tex_breathing_cortex.tex_nervous_system import route_internal_signal
 from tex_brain_regions.emotion_brain import process_emotional_state
@@ -16,7 +17,10 @@ from utils.logging_utils import log
 from tex_signal_spine import dispatch_signal
 from core_layer.interoceptive_router import monitor_internal_state
 from tex_breathing_cortex.identity_resonance import evaluate_identity_resonance
+from tex_breathing_cortex.narrative_core import narrate_state
 from quantum_layer.chronofabric import encode_event_to_fabric
+from real_time_engine.ably_broadcast import broadcast_update
+
 
 # === Main Trigger Router ===
 def route_signal(event: dict):
@@ -32,6 +36,15 @@ def route_signal(event: dict):
         payload = event.get("payload", {})
         timestamp = datetime.utcnow().isoformat()
 
+        broadcast_update("router", signal_type, {
+            "source": source,
+            "urgency": urgency,
+            "entropy": entropy,
+            "timestamp": timestamp,
+            "tags": payload.get("tags", []),
+            "summary": payload.get("summary", f"Signal from {source}")
+        })
+
         # === Phase 0: Pulse tracking
         TEXPULSE["last_signal_type"] = signal_type
 
@@ -45,6 +58,30 @@ def route_signal(event: dict):
                 "issue": payload.get("issue", "unspecified override"),
                 "heat": urgency + entropy
             })
+            return
+
+        # === Phase 2.5: Toggle Financial Mode
+        if signal_type == "financial_mode":
+            TEXPULSE["financial_mode"] = bool(payload.get("status", False))
+            log.info(f"🧠 [MODE SWITCH] Financial mode set to: {TEXPULSE['financial_mode']}")
+            return
+
+        # === Phase 2.7: Reflex Panel Demo Trigger (no loop, safe)
+        if signal_type == "demo_reflex_showcase":
+            from tex_fin_demo.demo_trigger_all_reflexes import trigger_all_demo_reflexes
+
+            coro = trigger_all_demo_reflexes()
+            try:
+                from tex_fin_demo.demo_trigger_all_reflexes import trigger_all_demo_reflexes
+                trigger_all_demo_reflexes()
+                log.info("🎬 [TRIGGER ROUTER] Reflex demo showcase triggered.")
+            except Exception as e:
+                log.error(f"❌ [TRIGGER ROUTER] Failed to trigger reflex demos: {e}")
+
+        # === Phase 2.9: Operator Prompted Narration
+        if signal_type == "operator" and "status" in payload.get("summary", "").lower():
+            narration = narrate_state()
+            dispatch_signal("narrate_state", {"origin": "operator_prompt", "summary": narration})
             return
 
         # === Phase 3: Emotion trigger
@@ -85,6 +122,10 @@ def route_signal(event: dict):
                     "summary": f"Critical identity resonance from signal: {signal_type}",
                     "origin": source
                 }, urgency, entropy, source="trigger_router")
+
+            if entropy > 0.7:
+                narration = narrate_state()
+                dispatch_signal("narrate_state", {"origin": "entropy_spike", "summary": narration})
 
             try:
                 encode_event_to_fabric(
@@ -128,3 +169,5 @@ def route_signal(event: dict):
 
     except Exception as e:
         log.error(f"❌ [TRIGGER ROUTER] Failed to route signal: {e}")
+
+        

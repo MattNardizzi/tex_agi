@@ -18,7 +18,9 @@ MEMORY_LOG = "memory_archive/evaluation_history.json"
 GOAL_SEED_SOURCE = "InternalMemory"
 
 # === Live Systems ===
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+from utils.embedder_loader import load_embedder
+
+embedder = load_embedder()
 
 
 # === Static Trigger Themes ===

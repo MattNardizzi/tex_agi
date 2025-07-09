@@ -1,69 +1,100 @@
 # ============================================================
-# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# 🧠 Tex Master Reflex Orchestrator | Tier: ∞∞∞ΩΞΣΩ
 # File: finance/strategy/tex_master_orchestrator.py
-# Purpose: Master controller to execute Part A + B of Tex AGI Brain
-# Tier: ΩΩ — Financial Cortex Reflex Driver
+# Purpose: Executes full AGI loop — Strategy Cortex (Part A) → Reflex Cortex (Part B) → Hub Reinforcement
 # ============================================================
 
-from finance.strategy.tex_execution_hub import TexExecutionHub  # optional
+from datetime import datetime
+from uuid import uuid4
+
+from agentic_ai.sovereign_memory import sovereign_memory
 from finance.strategy.tex_orchestrator_part_a import FinanceOrchestrator as OrchestratorPartA
 from finance.strategy.tex_orchestrator_part_b import FinanceOrchestrator as OrchestratorPartB
-
+from finance.strategy.tex_execution_hub import TexExecutionHub  # Optional layer
 
 class MasterTexOrchestrator:
     def __init__(self, strategy_scoring, explain_portfolio_decision, brain_identity=None):
-        self.last_future_report = {}
-
-        # === Trait Injection ===
-        self.identity = brain_identity or "TEX-FIN"
+        self.identity = brain_identity or "TEX-FINANCE"
         self.strategy_scoring = strategy_scoring
         self.explain_portfolio_decision = explain_portfolio_decision
+        self.last_future_report = {}
 
-        # === Part A: Foresight & Alpha Cortex ===
-        self.part_a = OrchestratorPartA(
-            strategy_scoring=self.strategy_scoring
-        )
+        # === Cortex A: Strategy + Foresight + Portfolio Thinking
+        self.part_a = OrchestratorPartA(strategy_scoring=self.strategy_scoring)
 
-        # === Part B: Reflex + Execution Cortex ===
+        # === Cortex B: Reflex Reasoning + Risk + Override
         self.part_b = OrchestratorPartB(
             explain_portfolio_decision=self.explain_portfolio_decision,
             strategy_scoring=self.strategy_scoring
         )
 
-        # Bind B’s reflex into A (loopless slot injection)
+        # Inject Part B reflex into Part A (loopless continuity)
         self.part_a.run_cycle_part_b = self.part_b.run_cycle_part_b.__get__(self.part_a)
 
-        # === Optional Hub ===
-        self.hub = TexExecutionHub(
-            strategy_scoring=self.strategy_scoring
-        )
+        # === Optional Hub: Reinforcement Reasoner
+        self.hub = TexExecutionHub(strategy_scoring=self.strategy_scoring)
 
     def run_cycle(self):
-        # === Part A: Generate strategy & projection
-        part_a_output, alpha, foresight, portfolio, ranked, futures = self.part_a.run_cycle_part_a()
+        cycle_tag = uuid4().hex
+        cycle_timestamp = datetime.utcnow().isoformat()
 
-        # === Part B: Evaluate risk + reflex + voting
-        part_b_output = self.part_b.run_cycle_part_b(alpha, foresight, portfolio, ranked, futures)
+        # === Run Part A: Generate alpha, foresight, portfolio, futures
+        part_a = self.part_a.run_cycle()
+        alpha = part_a["strategy"]
+        foresight = part_a["foresight"]
+        portfolio = part_a["portfolio"]
+        futures = part_a["futures"]
+        score = part_a["score"]
+        ranked = [{"strategy": alpha, "score": score}]  # Compatibility stub
 
-        # === Hub: Tactical feedback layer
-        hub_output = self.hub.evaluate_reinforcements(alpha, foresight, portfolio, ranked)
+        # === Run Part B: Execution, Reflex Logic, Overrides
+        part_b = self.part_b.run_cycle_part_b(
+            alpha=alpha,
+            foresight=foresight,
+            portfolio=portfolio,
+            ranked=ranked,
+            futures=futures
+        )
 
-        # === Final Fusion Report
+        # === Hub Layer: Tactical Reinforcement & Fine-Tuning
+        hub = self.hub.evaluate_reinforcements(
+            alpha=alpha,
+            foresight=foresight,
+            portfolio=portfolio,
+            ranked=ranked
+        )
+
+        # === Final Memory Fusion
         full_report = {
-            **part_a_output,
-            **part_b_output,
-            "hub_result": hub_output,
+            **part_a,
+            **part_b,
+            "hub_result": hub,
             "cycle_brain_id": self.identity,
-            "cycle_timestamp": datetime.utcnow().isoformat()
+            "cycle_timestamp": cycle_timestamp
         }
 
         self.last_future_report = full_report
+
+        # === Reflex Memory Injection
+        sovereign_memory.store(
+            text="🧠 [MASTER CYCLE COMPLETE] Full orchestration of strategy + reflex.",
+            metadata={
+                "intent": "master_strategy_cycle",
+                "meta_layer": "tex_master_orchestrator",
+                "tags": ["master_cycle", "fusion", "reflex", "alpha", "finance"],
+                "cycle_id": cycle_tag,
+                "timestamp": cycle_timestamp,
+                "identity": self.identity,
+                "strategy_id": alpha.get("strategy_id"),
+                "quantum_tag": full_report.get("quantum_tag")
+            }
+        )
+
         return full_report
 
 
-# === Local Reflex Test ===
+# === Reflex Test Entry ===
 if __name__ == "__main__":
-    from datetime import datetime
     from tex_brain_modules.portfolio_explainer import explain_portfolio_decision
     from finance.strategy.strategy_variant_simulator import StrategyVariantSimulator
 
@@ -76,6 +107,5 @@ if __name__ == "__main__":
     )
 
     result = cortex.run_cycle()
-
     for key, value in result.items():
         print(f"\n=== {key.upper()} ===\n{value}")

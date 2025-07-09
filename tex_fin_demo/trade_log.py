@@ -6,11 +6,10 @@
 # ============================================================
 
 from datetime import datetime
-from real_time_engine.websocket_broadcast import broadcast_update
+from real_time_engine.ably_broadcast import broadcast_update
 from utils.logging_utils import log_event
-
-# Optional: reflex memory injection
-# from agentic_ai.sovereign_memory import sovereign_memory
+from quantum_layer.chronofabric import encode_event_to_fabric
+from agentic_ai.sovereign_memory import sovereign_memory
 
 reflex_trade_log = []
 
@@ -18,6 +17,7 @@ async def log_trade(trade: dict):
     """
     Store reflex-triggered trade to the global AGI trade log.
     Broadcast structured JSON message to real-time UI.
+    Also injects into ChronoFabric and SovereignMemory.
     """
     timestamp = datetime.utcnow().isoformat()
 
@@ -38,18 +38,29 @@ async def log_trade(trade: dict):
 
     reflex_trade_log.append(trade_entry)
 
-    # Optional: Sovereign Memory Sync
-    # sovereign_memory.store(
-    #     text=f"[TRADE] {trade_entry['action'].upper()} {trade_entry['symbol']}",
-    #     metadata=trade_entry
-    # )
-
-    # === Real-Time Frontend Broadcast ===
+    # === ChronoFabric Encoding ===
     try:
-        await broadcast_update({
-            "type": "reflex_trade",
-            "payload": trade_entry
-        })
+        encode_event_to_fabric(
+            raw_text=f"Reflex trade: {trade_entry['action']} {trade_entry['symbol']}",
+            emotion_vector=trade_entry["vector"],
+            entropy_level=trade_entry["entropy"],
+            tags=["trade", "reflex", "execution", trade_entry["reflex_source"]]
+        )
+    except Exception as e:
+        log_event(f"❌ ChronoFabric encoding failed for trade: {e}", level="warning")
+
+    # === Sovereign Memory Sync ===
+    try:
+        sovereign_memory.store(
+            text=f"[TRADE] {trade_entry['action'].upper()} {trade_entry['symbol']}",
+            metadata=trade_entry
+        )
+    except Exception as e:
+        log_event(f"⚠️ Memory store failed for trade: {e}", level="warning")
+
+    # === Real-Time Panel Broadcast ===
+    try:
+        await broadcast_update("trade", "executed", trade_entry)
     except Exception as e:
         log_event(f"⚠️ Failed to broadcast trade log: {e}", level="warning")
 

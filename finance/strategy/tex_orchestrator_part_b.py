@@ -1,8 +1,8 @@
 # ============================================================
-# © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
+# ⚛️ Tex Reflex Pulse Cortex — MAXGODMODE ENABLED
 # File: finance/strategy/tex_orchestrator_part_b.py
-# Tier: ∞Ω Reflex Pulse – AGI Financial Reflex Cortex
-# Purpose: Executes risk-aware, emotion-driven, multiworld-informed trading and reasoning logic.
+# Tier ∞∞∞ΩΞΣΩ — Sovereign Execution & Multiworld Arbitration Engine
+# Purpose: Executes mutation-aware, emotion-aligned financial strategy logic.
 # ============================================================
 
 import random
@@ -13,206 +13,171 @@ from core_layer.tex_manifest import TEXPULSE
 from agentic_ai.sovereign_memory import sovereign_memory
 from evolution_layer.real_time_mutation_watcher import RealTimeMutationWatcher
 from core_layer.meta_awareness_bridge import detect_bias_drift
+from core_layer.phase_transition_monitor import PhaseTransitionMonitor
+from core_layer.causal_override_reflex import CausalOverrideReflex
 
-# Modules
-from finance.memory.meta_coherence_memory import MetaCoherenceMemory
-from finance.execution.market_action_engine import MarketActionEngine
-from finance.execution.market_strategy_driver import MarketStrategyDriver
-from finance.risk.risk_assessment_module import RiskAssessmentModule
+# === Strategic Cognition
 from finance.strategy.strategy_variant_simulator import StrategyVariantSimulator
 from finance.strategy.alpha_mimic_detector import AlphaMimicDetector
 from finance.strategy.alpha_signal_fuser import AlphaSignalFuser
 from finance.strategy.alpha_consensus_voter import AlphaConsensusVoter
+from finance.memory.meta_coherence_memory import MetaCoherenceMemory
+from finance.execution.market_strategy_driver import MarketStrategyDriver
+from finance.risk.risk_assessment_module import RiskAssessmentModule
+from aei_layer.internal_debate_chamber import run_internal_debate
+from agi_orchestrators.goal_orchestrator import GoalOrchestrator
+
+# === Multiworld Divergence
 from finance.multiworld.multiworld_causal_simulator import MultiWorldCausalSimulator
 from finance.multiworld.multiworld_reasoner import MultiWorldReasoner
 from finance.multiworld.multiworld_memory import MultiWorldMemory
 from finance.multiworld.recursive_paradox_resolver import RecursiveParadoxResolver
-from aei_layer.internal_debate_chamber import run_internal_debate
-from core_layer.phase_transition_monitor import PhaseTransitionMonitor
-from core_layer.causal_override_reflex import CausalOverrideReflex
-from agi_orchestrators.goal_orchestrator import GoalOrchestrator
-from utils.logging_utils import log_event
 
-def ensure_dict(obj):
-    return obj[0] if isinstance(obj, list) and obj else obj
+# === Utilities
+from utils.logging_utils import log_event
 
 class FinanceOrchestrator:
     def __init__(self, strategy_scoring=None, explain_portfolio_decision=None, brain=None):
         self.strategy_scoring = strategy_scoring
         self.explain_portfolio_decision = explain_portfolio_decision
         self.brain = brain or self
-        self.cycle_id = datetime.utcnow().isoformat()
-        self.cycle_counter = int(datetime.utcnow().timestamp())
+        self.timestamp = datetime.utcnow().isoformat()
 
-        # Reflex Modules
-        self.alpha_mimic = AlphaMimicDetector()
-        self.phase_monitor = PhaseTransitionMonitor()
+        # Core Reflex Systems
+        self.market_driver = MarketStrategyDriver()
+        self.variant_simulator = StrategyVariantSimulator()
         self.alpha_fuser = AlphaSignalFuser()
         self.alpha_voter = AlphaConsensusVoter()
-        self.override_reflex = CausalOverrideReflex()
+        self.alpha_mimic = AlphaMimicDetector()
+        self.risk_engine = None
+        self.phase_monitor = PhaseTransitionMonitor()
         self.memory = MetaCoherenceMemory()
-        self.variant_simulator = StrategyVariantSimulator()
-        self.multiworld = MultiWorldCausalSimulator()
-        self.divergence = MultiWorldReasoner()
+        self.goal_agent = GoalOrchestrator()
+        self.override_reflex = CausalOverrideReflex()
+
+        # Multiworld Reasoning
+        self.multi_sim = MultiWorldCausalSimulator()
+        self.multi_reasoner = MultiWorldReasoner()
         self.multi_memory = MultiWorldMemory()
         self.paradox_resolver = RecursiveParadoxResolver()
-        self.goal_orchestrator = GoalOrchestrator()
-        self.market = MarketActionEngine()
-        self.driver = MarketStrategyDriver()
-        self.risk_module = None
 
-        # Reflex: Meta-Bias Drift Check
-        bias_alert = detect_bias_drift(
-            sovereign_memory.recall_recent(top_k=25)
-        )
+        # Meta-cognitive Bias Check
+        drift = detect_bias_drift(sovereign_memory.recall_recent(top_k=25))
         sovereign_memory.store(
-            text="🧠 Meta-bias self-check completed.",
+            text="Bias drift audit complete.",
             metadata={
-                "intent": "meta_bias_self_check",
-                "conclusion": f"Bias Check → {bias_alert}",
-                "alignment_score": 0.75,
-                "emotion": "neutral",
-                "urgency": 0.45,
-                "tags": ["meta", "bias", "check"],
-                "reflexes": ["self_awareness"],
-                "timestamp": self.cycle_id,
-                "meta_layer": "bias_drift"
+                "intent": "bias_drift_audit",
+                "tags": ["bias", "meta_reflex"],
+                "meta_layer": "bias_monitoring",
+                "drift_score": drift,
+                "timestamp": self.timestamp,
+                "emotion": TEXPULSE.get("emotional_state", "neutral")
             }
         )
 
     def run_cycle_part_b(self, alpha, foresight, portfolio, ranked, futures):
-        alpha = ensure_dict(alpha)
-        foresight = ensure_dict(foresight)
-        portfolio = ensure_dict(portfolio)
-        ranked = ensure_dict(ranked)
-        futures = [ensure_dict(f) for f in futures] if isinstance(futures, list) else futures
-
         report = {}
+        cycle_id = uuid4().hex
         regret_score = 0.5
 
+        # === Step 1: Mutation Check
         RealTimeMutationWatcher().check_mutation_log()
 
-        if "strategy" in alpha:
-            impact_score = self.brain.strategy_scoring.evaluate(
-                strategy=alpha["strategy"],
-                regret_score=regret_score,
-                forecast_confidence=foresight.get("confidence", 0.6)
-            )
-            report["strategy_score"] = impact_score
-
-        goals = self.goal_orchestrator.generate_new_goals(
+        # === Step 2: Goal Generation + Debate
+        agentic_goals = self.goal_agent.generate_new_goals(
             regret_score=regret_score,
             drift_score=random.uniform(0.1, 0.6)
         )
-        report["agentic_goal"] = goals
+        debate_result = run_internal_debate(thought="cycle_" + cycle_id)
 
-        debate_scores = run_internal_debate(self.cycle_counter)
-        execution = self.driver.execute_strategy_loop(futures=futures, debate_scores=debate_scores)
-        report["action"] = execution
+        report["goals"] = agentic_goals
+        report["debate"] = debate_result
 
-        if not self.risk_module:
-            self.risk_module = RiskAssessmentModule(
+        # === Step 3: Strategy Execution
+        execution = self.market_driver.execute_strategy_loop(futures=futures, debate_scores=debate_result)
+        report["executed_action"] = execution
+
+        # === Step 4: Risk Assessment
+        if not self.risk_engine:
+            self.risk_engine = RiskAssessmentModule(
                 portfolio=portfolio,
-                confidence=foresight.get("confidence", 0.0),
-                volatility=foresight.get("volatility", 0.0),
+                confidence=foresight.get("confidence", 0.7),
+                volatility=foresight.get("volatility", 0.3),
                 emotion=TEXPULSE.get("emotional_state", "neutral")
             )
+        selected_future = random.choice(futures or [])
+        risk = self.risk_engine.assess_risk(selected_future)
+        report["risk_profile"] = risk
 
-        selected_future = random.choice(futures) if futures else {"future_title": "unknown"}
-        try:
-            risk = self.risk_module.assess_risk(selected_future)
-        except Exception as e:
-            risk = {"error": str(e), "level": "unknown"}
-        report["risk"] = risk
+        # === Step 5: Multiworld Simulation + Divergence
+        universes = self.multi_sim.simulate_multiworld()
+        divergence = self.multi_reasoner.reason_over_future_worlds(universes)
+        paradox_resolution = self.paradox_resolver.resolve_conflicts(divergence)
+        self.multi_memory.store_multiple_worlds(universes)
 
-        futures_simulated = self.multiworld.simulate_multiworld()
-        reasoning = self.divergence.reason_over_future_worlds(futures_simulated)
-        paradox = self.paradox_resolver.resolve_conflicts(reasoning)
+        report["multiworld_divergence"] = divergence
+        report["paradox_resolved"] = paradox_resolution
 
-        report["multiworld_insights"] = reasoning
-        report["multiworld_paradox_resolution"] = paradox
-
-        sovereign_memory.store(
-            text="🧠 Multiworld paradox resolved.",
-            metadata={
-                "intent": "multiworld_resolution",
-                "conclusion": str(paradox),
-                "tags": ["multiworld", "paradox"],
-                "reflexes": ["causal_reasoning"],
-                "alignment_score": 0.78,
-                "urgency": 0.4,
-                "timestamp": self.cycle_id,
-                "meta_layer": "multiworld_reasoning"
-            }
-        )
-
+        # === Step 6: Portfolio Explanation
         explanation = self.brain.explain_portfolio_decision(
             alpha_rationale=alpha,
             strategy=portfolio,
             foresight=foresight,
             regret_score=regret_score
         )
-        report["tex_explains"] = explanation
+        report["explanation"] = explanation
 
         sovereign_memory.store(
-            text="📊 Portfolio strategy explanation logged.",
+            text="Portfolio decision explained and archived.",
             metadata={
                 "intent": "portfolio_explanation",
-                "conclusion": explanation,
                 "tags": ["portfolio", "explanation"],
-                "reflexes": ["rationale_logging"],
-                "alignment_score": 0.81,
-                "urgency": 0.5,
-                "timestamp": self.cycle_id,
-                "meta_layer": "strategy_explanation"
+                "meta_layer": "portfolio_explainer",
+                "timestamp": self.timestamp,
+                "alignment_score": 0.82,
+                "coherence": TEXPULSE.get("coherence", 0.8)
             }
         )
 
-        variants = self.variant_simulator.simulate_variants([], foresight.get("confidence", 0.8))
+        # === Step 7: Strategy Variants
+        variants = self.variant_simulator.simulate_variants(futures, foresight.get("confidence", 0.75))
         top_variant = self.variant_simulator.rank_variants(variants)
-        if isinstance(top_variant, str):
-            top_variant = {
-                "id": top_variant,
-                "strategy": {"weights": {"equities": 0.25, "bonds": 0.15}},
-                "coherence": 0.0,
-                "regret": 0.0
-            }
-        report["top_variant"] = top_variant
+        report["strategy_variant_selected"] = top_variant
 
+        # === Step 8: Reflex Override Check
         override = self.override_reflex.evaluate_long_term_causality(
             forecast=foresight,
             memory_trajectory=self.memory.recall_emotion_trajectory(),
             regret=regret_score,
-            drift_score=random.uniform(0.4, 0.9)
+            drift_score=random.uniform(0.3, 0.8)
         )
         if override:
             report["override_triggered"] = override
 
-        fusion = self.alpha_fuser.fuse_signals(alpha, portfolio, foresight)
+        # === Step 9: Alpha Fusion & Ghost Detection
+        fusion_id = self.alpha_fuser.fuse_signals(alpha, portfolio, foresight)
         vote = self.alpha_voter.vote(top_variant, alpha, foresight)
-        ghost = self.alpha_mimic.detect_ghost_strategy(alpha, [])
-        collision = self.alpha_mimic.compare_to_tex_strategy(alpha)
+        ghost_alpha = self.alpha_mimic.detect_ghost_strategy(alpha, [])
+        collision_risk = self.alpha_mimic.compare_to_tex_strategy(alpha)
 
         report.update({
-            "alpha_fusion": fusion,
-            "voting_decision": vote,
-            "ghost_alpha": ghost,
-            "collision_risk": collision
+            "alpha_fusion_id": fusion_id,
+            "consensus_vote": vote,
+            "ghost_alpha_detected": ghost_alpha,
+            "collision_risk": collision_risk
         })
 
+        # === Final Memory Log
         sovereign_memory.store(
-            text="🧠 Alpha fusion + voting completed.",
+            text="Cycle B complete. Strategy, foresight, risk, and memory fused.",
             metadata={
-                "intent": "alpha_fusion_vote",
-                "conclusion": vote["consensus"],
-                "tags": ["alpha", "vote", "fusion"],
-                "reflexes": ["fusion_vote_decision"],
-                "alignment_score": 0.82,
-                "urgency": 0.6,
-                "timestamp": self.cycle_id,
-                "meta_layer": "alpha_fusion"
+                "intent": "cycle_b_complete",
+                "timestamp": datetime.utcnow().isoformat(),
+                "reflexes": ["strategy_synthesis", "alpha_fusion", "paradox_resolution"],
+                "tags": ["finance", "reflex", "multiworld", "alpha"],
+                "meta_layer": "cycle_b",
+                "cycle_id": cycle_id
             }
         )
 
-        report["cycle_timestamp"] = datetime.utcnow().isoformat()
         return report

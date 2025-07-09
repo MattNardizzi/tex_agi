@@ -1,18 +1,24 @@
 # ============================================================
-# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: future_layer/strategic_foresight_engine.py
-# Purpose: Tier 5 Strategic Foresight Engine — Tex AGI World Drift Navigator
+# Tier: ∞∞∞∞ΩΞΞΞ — Strategic Reflex Foresight Engine (𝚻-X Cortex)
+# Purpose: Predictive foresight engine that reacts to Tex's inner volatility,
+#          emotion-resonance, and contradiction spike conditions.
 # ============================================================
 
 import random
+import hashlib
 from datetime import datetime
 from core_layer.tex_manifest import TEXPULSE
+from agentic_ai.sovereign_memory import sovereign_memory
+from utils.logging_utils import log_event
 
 class StrategicForesightEngine:
     def __init__(self):
-        self.forecast_memory = []
-        self.max_memory = 50
-        self.volatility_bias_map = {
+        self._memory = []
+        self._cap = 64
+        self._fingerprint_salt = random.randint(1000, 9999)
+        self._volatility_map = {
             "fear": ["COLLAPSE", "STAGNATION"],
             "anxious": ["COLLAPSE", "STAGNATION"],
             "doubt": ["COLLAPSE", "STAGNATION"],
@@ -20,31 +26,30 @@ class StrategicForesightEngine:
             "resolve": ["REBOUND", "ROTATION"],
             "curious": ["REBOUND", "ROTATION"],
             "greed": ["ROTATION", "REBOUND"],
-            "anger": ["COLLAPSE", "ROTATION"]
+            "anger": ["COLLAPSE", "ROTATION"],
         }
 
     def generate_forecast(self, emotion=None, urgency=None, coherence=None):
-        """Tex predicts a strategic future state based on full cognitive profile."""
         emotion = emotion or TEXPULSE.get("emotional_state", "neutral")
-        urgency = urgency or TEXPULSE.get("urgency", 0.7)
-        coherence = coherence or TEXPULSE.get("coherence", 0.8)
+        urgency = urgency or TEXPULSE.get("urgency", 0.74)
+        coherence = coherence or TEXPULSE.get("coherence", 0.81)
 
-        scenario_universe = ["REBOUND", "COLLAPSE", "ROTATION", "STAGNATION"]
-        bias_pool = self.volatility_bias_map.get(emotion, scenario_universe)
+        scenarios = ["REBOUND", "COLLAPSE", "ROTATION", "STAGNATION"]
+        bias_pool = self._volatility_map.get(emotion, scenarios)
+        weighted = bias_pool * 3 + scenarios
 
-        # Bias weighting
-        weighted_pool = bias_pool * 3 + scenario_universe
-        projected = random.choice(weighted_pool)
-
-        # Signal drift amplification
-        noise = random.uniform(-0.1, 0.1)
-        confidence = round((urgency * 0.4 + coherence * 0.6) + noise, 3)
+        projected = random.choice(weighted)
+        noise = random.uniform(-0.07, 0.07)
+        confidence = round(urgency * 0.4 + coherence * 0.6 + noise, 3)
         confidence = max(0.0, min(1.0, confidence))
 
-        # Mutation bias injection
-        if urgency > 0.85 and coherence < 0.5 and random.random() < 0.25:
+        mutation_triggered = False
+        if urgency > 0.88 and coherence < 0.5 and random.random() < 0.22:
             projected = "ANOMALY"
-            confidence = round(confidence * 0.9, 3)
+            confidence = round(confidence * 0.87, 3)
+            mutation_triggered = True
+
+        fingerprint = hashlib.sha256(f"{projected}|{confidence}|{self._fingerprint_salt}".encode()).hexdigest()[:12]
 
         foresight = {
             "timestamp": datetime.utcnow().isoformat(),
@@ -53,44 +58,72 @@ class StrategicForesightEngine:
             "emotion": emotion,
             "urgency": urgency,
             "coherence": coherence,
-            "mutation_triggered": projected == "ANOMALY"
+            "fingerprint": fingerprint,
+            "mutation_triggered": mutation_triggered
         }
 
-        self.forecast_memory.append(foresight)
-        if len(self.forecast_memory) > self.max_memory:
-            self.forecast_memory.pop(0)
+        self._memory.append(foresight)
+        if len(self._memory) > self._cap:
+            self._memory.pop(0)
+
+        try:
+            sovereign_memory.store(
+                text=f"[FORESIGHT] {projected} → Confidence={confidence} | Fingerprint={fingerprint}",
+                metadata={
+                    "timestamp": foresight["timestamp"],
+                    "tags": ["foresight", projected.lower(), "predictive"],
+                    "confidence": confidence,
+                    "mutation_triggered": mutation_triggered,
+                    "emotion": emotion,
+                    "urgency": urgency,
+                    "coherence": coherence,
+                    "signal_entropy": TEXPULSE.get("entropy", 0.44),
+                    "foresight_fingerprint": fingerprint
+                }
+            )
+        except Exception as e:
+            log_event(f"[FORESIGHT ERROR] Memory sync failed: {e}", level="warning")
 
         return foresight
 
     def analyze_drift(self, window=5):
-        """Analyzes recent forecast sequence for directional bias or instability."""
-        if len(self.forecast_memory) < window:
-            return {"drift_state": "insufficient data", "bias_ratio": 0.0}
+        if len(self._memory) < window:
+            return {
+                "drift_state": "insufficient_data",
+                "bias_ratio": 0.0,
+                "emotion_resonance": "undefined",
+                "last_predictions": []
+            }
 
-        windowed = self.forecast_memory[-window:]
-        future_counts = {}
-        for entry in windowed:
-            label = entry["projected_future"]
-            future_counts[label] = future_counts.get(label, 0) + 1
+        recent = self._memory[-window:]
+        count = {}
+        for f in recent:
+            tag = f["projected_future"]
+            count[tag] = count.get(tag, 0) + 1
 
-        dominant = max(future_counts, key=future_counts.get)
-        ratio = round(future_counts[dominant] / window, 3)
+        dominant = max(count, key=count.get)
+        ratio = round(count[dominant] / window, 3)
+
+        # Emotion-resonance detection (Tex's current emotional alignment with dominant trend)
+        current_emotion = TEXPULSE.get("emotional_state", "neutral")
+        aligned = dominant in self._volatility_map.get(current_emotion, [])
+        resonance = "aligned" if aligned else "divergent"
 
         return {
-            "drift_state": f"{dominant.lower()} dominant" if ratio >= 0.6 else "mixed foresight",
+            "drift_state": f"{dominant.lower()}_dominant" if ratio >= 0.6 else "unstable_trajectory",
             "bias_ratio": ratio,
-            "last_n_predictions": [f["projected_future"] for f in windowed]
+            "emotion_resonance": resonance,
+            "last_predictions": [f["projected_future"] for f in recent]
         }
 
     def recall_recent_forecasts(self, limit=5):
-        return self.forecast_memory[-limit:]
+        return self._memory[-limit:]
 
-# === TEST HARNESS ===
+# === Reflex Pulse Test ===
 if __name__ == "__main__":
-    engine = StrategicForesightEngine()
+    foresight_engine = StrategicForesightEngine()
     for _ in range(10):
-        forecast = engine.generate_forecast()
-        print("[FORESIGHT]", forecast)
-    
-    drift_report = engine.analyze_drift()
-    print("\n[DRIFT REPORT]", drift_report)
+        print(foresight_engine.generate_forecast())
+
+    print("\n[DRIFT SNAPSHOT]")
+    print(foresight_engine.analyze_drift())

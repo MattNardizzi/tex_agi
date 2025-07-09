@@ -2,19 +2,17 @@
 # © 2025 VortexBlack LLC / Sovereign Cognition
 # File: core_agi_modules/belief_justifier.py
 # Tier: ΩΩΩ++ Reflex Justification Cortex — Symbolic Integrity Auditor
+# Purpose: Evaluates, scores, and flags beliefs for justification strength
 # ============================================================
 
 from datetime import datetime
 import numpy as np
 
-from agentic_ai.milvus_memory_router import memory_router, embed_text  # ✅ Milvus vector + embed
+from agentic_ai.milvus_memory_router import memory_router, embed_text
 from core_agi_modules.sovereign_core.override_hooks import trigger_sovereign_override
-
+from core_layer.tex_manifest import TEXPULSE
 
 def get_soulgraph():
-    """
-    Sovereign-safe loader to avoid circular reflex loops.
-    """
     from sovereign_evolution.texX_soulgraph import TEX_SOULGRAPH
     return TEX_SOULGRAPH
 
@@ -25,7 +23,7 @@ class BeliefJustifier:
 
     def trace_belief_origin(self, belief_text: str, top_k: int = 5, threshold: float = 0.78) -> list:
         """
-        Finds similar cognitive traces to this belief using vector similarity in Milvus.
+        Finds similar cognitive traces using vector similarity in Milvus.
         """
         vector = embed_text(belief_text)
         results = memory_router.query_by_vector(vector=vector, top_k=top_k)
@@ -44,21 +42,43 @@ class BeliefJustifier:
         })
         return sources
 
-    def detect_weak_justification(self, sources: list, threshold: int = 3) -> bool:
+    def evaluate_justification_strength(self, belief_text: str, sources: list) -> float:
         """
-        Determines if belief lacks meaningful support by measuring linguistic depth.
+        Computes a justification strength score based on:
+        - # of valid supporting sources
+        - semantic signal boost
+        - urgency and entropy modulation
         """
-        justification_score = sum(1 for s in sources if len(s.strip().split()) > 3)
-        return justification_score < threshold
+        urgency = float(TEXPULSE.get("urgency", 0.7))
+        entropy = float(TEXPULSE.get("entropy", 0.4))
+
+        source_depth_score = sum(1 for s in sources if len(s.strip().split()) > 3)
+        source_factor = min(source_depth_score / 5.0, 1.0)
+
+        relevant_terms = [
+            "inflation", "fed", "BlackRock", "earnings", "GDP", "AI",
+            "merger", "interest rates", "volatility", "ECB", "layoffs"
+        ]
+        semantic_boost = 0.05 if any(term.lower() in belief_text.lower() for term in relevant_terms) else 0.0
+        urgency_boost = urgency * (0.1 + entropy * 0.1)
+
+        strength = round(min(1.0, source_factor + semantic_boost + urgency_boost), 6)
+        return strength
 
     def suggest_patch(self, belief_text: str) -> dict:
         """
-        Evaluates belief justification. If weak, triggers override and soulgraph imprint.
+        Suggests justification metadata and reflex triggers for a belief.
         """
-        sources = self.trace_belief_origin(belief_text)
-        weak = self.detect_weak_justification(sources)
+        urgency = float(TEXPULSE.get("urgency", 0.7))
+        entropy = float(TEXPULSE.get("entropy", 0.4))
 
-        if weak:
+        sources = self.trace_belief_origin(belief_text)
+        justification_strength = self.evaluate_justification_strength(belief_text, sources)
+
+        justified = justification_strength >= (0.5 - entropy * 0.2)
+        reflexes = []
+
+        if not justified:
             print(f"⚠️ [BELIEF JUSTIFIER] Weak justification detected for: '{belief_text}'")
 
             get_soulgraph().imprint_belief(
@@ -71,28 +91,28 @@ class BeliefJustifier:
             trigger_sovereign_override(
                 cognitive_event={"input": belief_text},
                 reason="belief_weakness",
-                heat=0.7
+                heat=0.6 + urgency * 0.3
             )
 
-            return {
-                "belief": belief_text,
-                "action": "flag_for_review",
-                "justified": False,
-                "sources_found": len(sources),
-                "timestamp": datetime.utcnow().isoformat()
-            }
+            reflexes = ["flag_for_review", "route_to_self_reflection"]
 
         return {
             "belief": belief_text,
-            "action": "none",
-            "justified": True,
+            "justified": justified,
+            "justification_strength": justification_strength,
             "sources_found": len(sources),
-            "timestamp": datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat(),
+            "reflexes": reflexes,
+            "semantic_triggered": any(term.lower() in belief_text.lower() for term in [
+                "inflation", "fed", "BlackRock", "AI", "GDP", "volatility", "interest rates"
+            ]),
+            "urgency": urgency,
+            "entropy": entropy
         }
 
     def log_belief_review(self, belief_text: str, result: dict):
         """
-        Logs the result of belief justification into both symbolic memory and Milvus.
+        Logs belief justification status into both soulgraph and vector memory.
         """
         emotion_label = "analytic" if result.get("justified", True) else "doubt"
 
@@ -117,3 +137,8 @@ class BeliefJustifier:
                 "timestamp": datetime.utcnow().isoformat()
             }
         )
+    def detect_weak_justification(self, sources: list) -> bool:
+        """
+        Lightweight heuristic to determine if belief justification is weak.
+        """
+        return len(sources) < 2 or all(len(s.strip()) < 30 for s in sources)

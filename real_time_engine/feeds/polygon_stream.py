@@ -1,11 +1,11 @@
 # ============================================================
-# © 2025 VortexBlack LLC. All rights reserved.
+# 🔊 Tex Polygon Reflex Stream
 # File: real_time_engine/feeds/polygon_feed.py
-# Tier ΩΩΩΩΩ+++ — Polygon Stream Fusion to Sovereign Memory + Reflex
-# Purpose: Pull Polygon OHLCV + news, enrich and dispatch to Tex with real-time reflex triggers
+# Tier: ΩΩΩΩΩ+++ — Polygon Stream Fusion to Sovereign Memory + Reflex
+# Purpose: Pulls Polygon OHLCV + news, enriches, classifies, embeds, and routes to Tex with real-time signal triggers
 # ============================================================
 
-import os, time, requests, hashlib
+import os, requests, hashlib
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 
@@ -21,7 +21,10 @@ from core_layer.tex_manifest import TEXPULSE
 # === Configuration ===
 load_dotenv()
 API_KEY = os.getenv("POLYGON_API_KEY")
-SYMBOLS = ["AAPL", "TSLA", "QQQ", "MSFT", "NVDA"]
+if not API_KEY:
+    raise ValueError("❌ POLYGON_API_KEY is missing. Check your .env and load_dotenv().")
+
+SYMBOLS = os.getenv("POLYGON_SYMBOLS", "AAPL,TSLA,QQQ,MSFT,NVDA").split(",")
 VOLUME_THRESHOLD = 100_000_000
 NEWS_LIMIT = 5
 
@@ -29,12 +32,13 @@ NEWS_LIMIT = 5
 news_hashes = set()
 agg_hashes = set()
 
+
 def hash_entry(entry: str) -> str:
     return hashlib.md5(entry.encode("utf-8")).hexdigest()
 
 
-# === Polygon News Fetcher ===
-def fetch_polygon_news():
+# === Polygon News Reflex Trigger ===
+def trigger_polygon_news():
     url = f"https://api.polygon.io/v2/reference/news?limit={NEWS_LIMIT}&apiKey={API_KEY}"
     try:
         response = requests.get(url, timeout=10)
@@ -55,6 +59,20 @@ def fetch_polygon_news():
             sentiment = sentiment_analyzer.classify_sentiment(summary)
             urgency = enhanced_urgency_score(summary)
             embedding = embed_text(summary)
+
+            # === Reflex Injection Hooks
+            lower_summary = summary.lower()
+            if "options" in lower_summary and ("volatility" in lower_summary or "spike" in lower_summary):
+                dispatch_signal("meta_market_cycle", {
+                    "signal": "Options Vol Spike",
+                    "belief": "volatility_choke"
+                })
+
+            if any(word in lower_summary for word in ["powell", "inflation", "rate hike", "hawkish"]):
+                dispatch_signal("meta_market_cycle", {
+                    "signal": "Fed Hawkish Hint",
+                    "belief": "policy_contradiction"
+                })
 
             payload = {
                 "source": "polygon_news",
@@ -77,8 +95,8 @@ def fetch_polygon_news():
         print(f"[POLYGON NEWS ERROR] ❌ {e}")
 
 
-# === Polygon OHLCV Aggregates Fetcher with Reflex Trigger ===
-def fetch_polygon_aggregates():
+# === Polygon OHLCV Reflex Trigger ===
+def trigger_polygon_aggregates():
     for symbol in SYMBOLS:
         url = f"https://api.polygon.io/v2/aggs/ticker/{symbol}/prev?adjusted=true&apiKey={API_KEY}"
         try:
@@ -93,7 +111,6 @@ def fetch_polygon_aggregates():
                 continue
             agg_hashes.add(entry_id)
 
-            # === Reflex Check: Intraday Drop % ===
             open_price = result["o"]
             close_price = result["c"]
             percent_change = ((close_price - open_price) / open_price) * 100
@@ -111,7 +128,6 @@ def fetch_polygon_aggregates():
                     "trigger_type": "price_drop"
                 }, urgency=urgency, entropy=entropy, source="polygon_feed")
 
-            # === Memory Logging Payload ===
             summary = f"{symbol} closed at {close_price} on volume {result['v']:,}."
             urgency = 0.2 if result["v"] < VOLUME_THRESHOLD else 0.85
             sentiment = "neutral"
@@ -143,14 +159,15 @@ def fetch_polygon_aggregates():
             print(f"[AGG ERROR] ❌ {symbol} → {e}")
 
 
-# === Loop Controller ===
-def start_polygon_stream():
-    print("📡 [POLYGON STREAM] Starting Polygon data loop...")
-    while True:
-        fetch_polygon_news()
-        fetch_polygon_aggregates()
-        time.sleep(90)
-
-
-if __name__ == "__main__":
-    start_polygon_stream()
+# === Sovereign Reflex Pulse Entrypoint ===
+def pulse_polygon_stream():
+    """
+    This function is designed to be triggered by Tex's reflex system or cortex router.
+    It pulls the latest data once — no loops, no blocking.
+    """
+    print("📡 [POLYGON REFLEX] Single pulse initiated.")
+    try:
+        trigger_polygon_news()
+        trigger_polygon_aggregates()
+    except Exception as e:
+        print(f"[POLYGON PULSE ERROR] ❌ {e}")

@@ -14,6 +14,8 @@ from core_layer.memory_consolidator import MemoryConsolidator
 from core_agi_modules.memory_layer.reflex_engine import ReflexEngine
 from core_agi_modules.environmental_reflex_engine import EnvironmentalReflexEngine
 from core_agi_modules.autonomous_environment_agent import AutonomousEnvironmentAgent
+from core_agi_modules.symbolic_world_model import SymbolicWorldModel
+
 
 class TexWorldModel:
     def __init__(self):
@@ -205,6 +207,36 @@ class TexWorldModel:
             fusion.append("Meta-evolution inactive.")
 
         return " ".join(fusion)
+
+    def predict_contradiction(self, action):
+        """
+        Predict contradiction pressure based on current belief state, regret, and intended action.
+        Returns a float between 0.0 and 1.0
+        """
+        from core_layer.tex_manifest import TEXPULSE
+
+        # Pull cognitive context
+        regret = TEXPULSE.get("regret_score", 0.5)
+        coherence = TEXPULSE.get("coherence", 0.82)
+        urgency = TEXPULSE.get("urgency", 0.7)
+
+        # Interpret action
+        if isinstance(action, dict):
+            act_type = action.get("action", "").lower()
+        else:
+            act_type = str(action).lower()
+
+        # Base contradiction score = inverse of coherence + influence from regret
+        contradiction = 1.0 - coherence + (0.25 * regret)
+
+        # Add heuristics based on aggressive action types
+        if "short" in act_type:
+            contradiction += 0.1
+        elif "buy" in act_type:
+            contradiction -= 0.05
+
+        # Final bounding
+        return round(min(max(contradiction, 0.0), 1.0), 3)
 
 
 # === Global Context Vector for Quantum Reflex ===

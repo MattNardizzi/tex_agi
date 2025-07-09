@@ -1,158 +1,174 @@
 # ============================================================
-# 🔐 VortexBlack Confidential – Tier 5 AGI Financial Cortex
-# File: future_layer/risk_assessment_module.py
-# Tier: ∞ΩΩΩ∞Ω∞Ω∞ — AGI Risk Engine
-# Purpose: Sovereign emotion-aware risk scoring with override and mutation hooks.
-# MAXGODMODE ENABLED — Cognitive-state fused, mutation-aware, loopless, memory-reflex aligned.
+# 🔐 VortexBlack Sovereign Cognition
+# File: finance/execution/risk_assessment_module.py
+# Tier: ∞ΞΞΩX — Tex Reflex Risk Cortex (Loopless + Sovereign Escalation)
+# Purpose: Emotion-coherence fused, volatility-modulated, mutation-triggered AGI risk engine.
 # ============================================================
 
 import random
 import hashlib
 from datetime import datetime
+
 from agentic_ai.sovereign_memory import sovereign_memory
 from core_layer.tex_manifest import TEXPULSE
 from utils.logging_utils import log_event
+from quantum_layer.quantum_randomness import generate_quantum_label
+from quantum_layer.chronofabric import encode_event_to_fabric
 
+# Sovereign Hooks
 try:
     from sovereign_evolution.sovereign_cognition_fire import trigger_sovereign_override
     from finance.strategy.strategy_mutator import trigger_strategy_mutation
     from real_time_engine.advanced_analytics import AdvancedAnalytics
-    REALTIME_ENABLED = True
     ESCALATION_ENABLED = True
 except ImportError:
-    REALTIME_ENABLED = False
     ESCALATION_ENABLED = False
 
+
 class RiskAssessmentModule:
-    def __init__(self, portfolio, confidence, volatility, emotion):
+    def __init__(self, portfolio=None, confidence=0.5, volatility=0.5, emotion="neutral"):
         self.portfolio = portfolio
         self.confidence = confidence
         self.volatility = volatility
         self.emotion = emotion
-        self.volatility_cache = {}
-        self.medium_threshold = 0.5
-        self.high_threshold = 0.75
-
-        log_event(f"[RISK INIT] Confidence={confidence} | Volatility={volatility} | Emotion={emotion}")
+        self.cache = {}
 
     def evaluate(self):
+        """Minimal reflex score."""
         return {
-            "score": round(self.confidence * (1 - self.volatility), 3),
-            "volatility": self.volatility,
+            "score": round(self.confidence * (1 - self.volatility), 4),
             "confidence": self.confidence,
+            "volatility": self.volatility,
             "emotion": self.emotion
         }
 
     def assess_risk(self, future: dict) -> dict:
-        future_id = future.get("future_id", f"unlabeled_{random.randint(1000, 9999)}")
-        confidence = future.get("confidence", 0.5)
+        # === Inputs
+        fid = future.get("future_id", f"unlabeled_{random.randint(1000,9999)}")
+        confidence = float(future.get("confidence", 0.5))
+        timestamp = datetime.utcnow().isoformat()
+        quantum_tag = generate_quantum_label()
 
-        # Volatility source
-        if future_id in self.volatility_cache:
-            base_vol = self.volatility_cache[future_id]
+        # === Retrieve or Generate Volatility
+        if fid in self.cache:
+            base_vol = self.cache[fid]
         else:
-            base_vol = self._seeded_volatility(future_id)
-            self.volatility_cache[future_id] = base_vol
+            base_vol = self._seeded_volatility(fid)
+            self.cache[fid] = base_vol
 
-        if REALTIME_ENABLED:
+        if ESCALATION_ENABLED:
             try:
                 realtime_vol = AdvancedAnalytics.get_market_volatility_score()
                 base_vol = (base_vol + realtime_vol) / 2
             except Exception as e:
-                log_event(f"[REALTIME VOL ERROR] {e}", level="warning")
+                log_event(f"[VOL ERROR] {e}", level="warning")
 
-        urgency = float(TEXPULSE.get("urgency", 0.5))
-        coherence = float(TEXPULSE.get("coherence", 0.5))
+        # === Reflex Modulation
+        urgency = float(TEXPULSE.get("urgency", 0.72))
+        coherence = float(TEXPULSE.get("coherence", 0.75))
         emotion = TEXPULSE.get("emotional_state", self.emotion)
+        entropy = float(TEXPULSE.get("entropy", 0.44))
 
-        # Emotion adjustment
-        emotion_adjust = {
-            "fear": 0.12, "doubt": 0.08, "greed": -0.05,
-            "hope": -0.02, "resolve": 0.0, "anger": 0.15,
-            "joy": -0.08, "cautious": 0.05
+        adjust = {
+            "fear": 0.14, "doubt": 0.09, "greed": -0.07, "hope": -0.04,
+            "resolve": 0.0, "anger": 0.18, "joy": -0.09, "anxious": 0.1
         }
-        adjusted_vol = min(max(base_vol + emotion_adjust.get(emotion, 0.0), 0.0), 1.0)
+        adjusted_vol = min(max(base_vol + adjust.get(emotion, 0.0), 0), 1.0)
 
-        # Risk calculation
+        # === Final Risk Score
         penalty = 1.0 - confidence
-        coherence_blend = 1.0 - ((confidence + coherence) / 2)
-        urgency_amp = 1.0 + (urgency * 0.25)
-        risk_score = min(max(penalty * adjusted_vol * coherence_blend * urgency_amp, 0.0), 1.0)
+        blend = 1.0 - ((coherence + confidence) / 2)
+        amp = 1.0 + urgency * 0.25
+        score = round(penalty * adjusted_vol * blend * amp, 4)
+        score = min(max(score, 0.0), 1.0)
 
-        risk_level = (
-            "HIGH RISK" if risk_score >= self.high_threshold else
-            "MEDIUM RISK" if risk_score >= self.medium_threshold else
-            "LOW RISK"
+        level = (
+            "HIGH" if score >= 0.75 else
+            "MEDIUM" if score >= 0.45 else
+            "LOW"
         )
 
-        assessment = {
-            "future_id": future_id,
-            "risk_level": risk_level,
-            "confidence": round(confidence, 3),
-            "volatility_factor": round(adjusted_vol, 3),
-            "combined_risk_score": round(risk_score, 3),
+        result = {
+            "future_id": fid,
+            "quantum_tag": quantum_tag,
+            "risk_score": score,
+            "risk_level": level,
+            "confidence": confidence,
+            "volatility": round(adjusted_vol, 3),
             "emotion": emotion,
             "urgency": round(urgency, 3),
+            "entropy": round(entropy, 3),
             "coherence": round(coherence, 3),
-            "memory_trace": hashlib.sha1(future_id.encode()).hexdigest()[:10],
-            "assessed_at": datetime.utcnow().isoformat()
+            "timestamp": timestamp,
+            "memory_hash": hashlib.sha256(fid.encode()).hexdigest()[:12]
         }
 
-        # Store to sovereign memory
+        # === Sovereign Memory Injection
         try:
             sovereign_memory.store(
-                text=f"[RISK ASSESSMENT] {future_id} → {risk_level}",
+                text=f"[RISK] {fid} assessed at {level}",
                 metadata={
-                    "tags": ["risk", "assessment", risk_level.lower()],
-                    "meta_layer": "risk_engine",
-                    "timestamp": assessment["assessed_at"],
-                    "emotion": emotion,
-                    "heat": urgency,
-                    "trust_score": coherence,
-                    "volatility": adjusted_vol,
+                    "timestamp": timestamp,
+                    "tags": ["risk", "assessment", level.lower()],
+                    "quantum_tag": quantum_tag,
                     "confidence": confidence,
-                    "risk_score": risk_score
+                    "volatility": adjusted_vol,
+                    "urgency": urgency,
+                    "coherence": coherence,
+                    "entropy": entropy,
+                    "emotion": emotion,
+                    "meta_layer": "risk_assessment_module",
+                    "score": score
                 }
             )
         except Exception as e:
-            log_event(f"[MEMORY LOG ERROR] {e}", level="error")
+            log_event(f"[RISK MEMORY ERROR] {e}", level="error")
 
-        # Sovereign escalation
-        if ESCALATION_ENABLED and risk_score > 0.85:
-            log_event("🛡️ [ESCALATE] Sovereign override triggered by risk profile.")
-            try:
-                trigger_sovereign_override(
-                    context="risk_assessment",
-                    regret=1.0 - confidence,
-                    foresight=confidence,
-                    coherence=coherence
-                )
-            except Exception as e:
-                log_event(f"[ESCALATION ERROR] {e}", level="error")
+        # === ChronoFabric Reflex Pulse
+        try:
+            encode_event_to_fabric(
+                raw_text=f"Future risk signal: {level} | Score: {score}",
+                emotion_vector=[urgency, entropy, 0.0, 0.0],
+                entropy_level=entropy,
+                tags=["risk_reflex", level.lower(), "volatility"]
+            )
+        except Exception as e:
+            log_event(f"[FABRIC SYNC ERROR] {e}", level="warning")
 
-        if ESCALATION_ENABLED and risk_score > 0.75 and coherence < 0.4:
-            try:
-                log_event("🧬 [MUTATION] Strategy mutation triggered.")
-                trigger_strategy_mutation(
-                    reason="risk_profile_exceeded",
-                    strategy_id=future_id,
-                    score=risk_score
-                )
-            except Exception as e:
-                log_event(f"[MUTATION ERROR] {e}", level="error")
+        # === Reflex Escalation
+        if ESCALATION_ENABLED:
+            if score > 0.85:
+                log_event("🛡️ [ESCALATE] Triggering sovereign override...")
+                try:
+                    trigger_sovereign_override(
+                        context="risk_assessment",
+                        regret=1 - confidence,
+                        foresight=confidence,
+                        coherence=coherence
+                    )
+                except Exception as e:
+                    log_event(f"[SOVEREIGN FAIL] {e}", level="error")
 
-        return assessment
+            if score > 0.72 and coherence < 0.4:
+                log_event("🧬 [MUTATION] Triggering strategy mutation.")
+                try:
+                    trigger_strategy_mutation(
+                        reason="risk_threshold_breach",
+                        strategy_id=fid,
+                        score=score
+                    )
+                except Exception as e:
+                    log_event(f"[MUTATION FAIL] {e}", level="error")
 
-    def _seeded_volatility(self, future_id: str) -> float:
-        seed = int(hashlib.sha256(future_id.encode()).hexdigest(), 16) % 10000
+        return result
+
+    def _seeded_volatility(self, fid):
+        seed = int(hashlib.sha256(fid.encode()).hexdigest(), 16) % 10000
         random.seed(seed)
         return round(random.uniform(0.12, 0.93), 3)
 
     def batch_assess(self, futures: list) -> list:
         return [self.assess_risk(f) for f in futures]
 
-    def __float__(self):
-        return float(self.evaluate()["score"])
-
-    def __round__(self, n=None):
-        return round(self.evaluate()["score"], n or 2)
+    def __float__(self): return float(self.evaluate()["score"])
+    def __round__(self, n=None): return round(self.evaluate()["score"], n or 2)

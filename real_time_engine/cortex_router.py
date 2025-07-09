@@ -10,7 +10,8 @@ from datetime import datetime
 
 from real_time_engine.feeds.rss_feed import start as start_rss
 from real_time_engine.feeds.finnhub_stream import run_finnhub_loop
-from real_time_engine.feeds.polygon_stream import start_polygon_stream
+from real_time_engine.feeds.polygon_stream import pulse_polygon_stream
+from real_time_engine.feeds.benzinga_stream import pulse_benzinga_stream
 from real_time_engine.feeds.kafka_stream import start_kafka_feed
 from real_time_engine.reflex_rulebook import evaluate_and_trigger
 
@@ -21,11 +22,10 @@ from tex_trigger_router import route_signal
 # === Optional: UI Dashboard Reflex Broadcast Integration ===
 def broadcast_reflex_event(event: dict):
     """
-    Optional UI dashboard integration. Emits real-time reflex trigger events to frontend.
-    Replace with your WebSocket or server push mechanism.
+    Emits real-time reflex trigger events to UI dashboard via Ably or other broadcast utility.
     """
     try:
-        from utils.ui_broadcast import push_to_dashboard  # <- replace with actual broadcast util
+        from utils.ui_broadcast import push_to_dashboard
         push_to_dashboard({
             "type": event.get("type", "real_time"),
             "timestamp": datetime.utcnow().isoformat(),
@@ -37,7 +37,6 @@ def broadcast_reflex_event(event: dict):
         })
     except Exception as e:
         print(f"[⚠️ UI BROADCAST ERROR] {e}")
-
 
 # === Internal Reflex Cache ===
 _last_goal_ids = set()
@@ -51,7 +50,8 @@ def launch_streams():
     threads = [
         threading.Thread(target=start_rss, daemon=True),
         threading.Thread(target=run_finnhub_loop, daemon=True),
-        threading.Thread(target=start_polygon_stream, daemon=True),
+        threading.Thread(target=pulse_polygon_stream, daemon=True),
+        threading.Thread(target=pulse_benzinga_stream, daemon=True),
         threading.Thread(target=start_kafka_feed, daemon=True),
     ]
 
@@ -96,7 +96,7 @@ def pull_fresh_signals(limit=10, min_heat=0.3, dedupe=True):
 
                 route_signal(event)
                 evaluate_and_trigger(event)
-                broadcast_reflex_event(event)  # ⬅️ UI dashboard update
+                broadcast_reflex_event(event)
 
         return new_signals
 

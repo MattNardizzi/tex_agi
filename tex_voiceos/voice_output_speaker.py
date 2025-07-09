@@ -8,12 +8,12 @@ import os
 import requests
 import hashlib
 from datetime import datetime
-from sentence_transformers import SentenceTransformer
-
 from core_layer.tex_manifest import TEXPULSE
 from agentic_ai.sovereign_memory import sovereign_memory
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+from utils.embedder_loader import load_embedder
+
+embedder = load_embedder()
 
 class VoiceOutputSpeaker:
     def __init__(self):

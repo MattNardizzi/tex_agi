@@ -18,9 +18,9 @@ from aei_layer.counterfactual_memory_engine import (
 )
 from sovereign_evolution.codex_compiler import CodexCompiler
 from tex_brain_modules.tex_patcher_engine import TexPatcherEngine
-from sentence_transformers import SentenceTransformer
+from utils.embedder_loader import load_embedder
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+embedder = load_embedder()
 
 class SovereignCognitionFire:
     def __init__(self):

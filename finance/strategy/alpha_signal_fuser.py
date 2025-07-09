@@ -1,84 +1,96 @@
 # ============================================================
-# © 2025 Matthew Nardizzi / VortexBlack LLC. All rights reserved.
+# 🧠 VortexBlack Reflex Cortex | Tier 12 — Alpha Signal Fuser (Symbolic Fusion Engine)
 # File: finance/strategy/alpha_signal_fuser.py
-# Purpose: Tier 12 — Fuse Alpha Signals into Long-Term Memory + Drift-Aware Feedback
+# Purpose: Fuses rationale, strategy, and performance feedback into long-term AGI trace memory.
+# Architecture: Loopless | Reflex-aligned | Drift-aware | Memory-stacked.
+# © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # ============================================================
 
 import uuid
 from datetime import datetime
 from agentic_ai.sovereign_memory import sovereign_memory
-
+from utils.logging_utils import log_event
 
 class AlphaSignalFuser:
-    def __init__(self, memory_agent="alpha_signals"):
-        self.agent = memory_agent
-        self.tag = "alpha_signal"
+    def __init__(self, agent="TEX", tag="alpha_signal", horizon_minutes=240):
+        self.agent = agent
+        self.tag = tag
+        self.horizon_minutes = horizon_minutes
 
-    def fuse_signals(self, alpha_rationale, strategy, performance=None):
+    def fuse_signals(self, rationale: str, strategy: dict, performance: dict = None):
         """
-        Combines reasoning + strategy + result into one reflex memory trace.
+        Creates a long-term symbolic fusion trace combining AGI rationale,
+        tactical portfolio choice, and performance outcome.
         """
-        fused_id = str(uuid.uuid4())
+        fusion_id = str(uuid.uuid4())
         timestamp = datetime.utcnow().isoformat()
 
-        sovereign_memory.store(
-            text=f"Fused signal ID: {fused_id}",
-            metadata={
-                "agent": "TEX",
-                "intent": "fuse_alpha_signal",
-                "conclusion": f"Fused signal ID: {fused_id}",
-                "tags": [self.tag, "strategy", "tier_12_feedback"],
-                "timestamp": timestamp,
-                "reflexes": ["alpha_fusion", "long_term_trace"],
-                "meta_layer": "symbolic_trace",
-                "metadata": {
-                    "rationale": alpha_rationale,
-                    "strategy": strategy,
-                    "performance": performance or {},
-                    "fusion_id": fused_id
+        try:
+            sovereign_memory.store(
+                text=f"[ALPHA FUSION] ID={fusion_id}",
+                metadata={
+                    "agent": self.agent,
+                    "intent": "alpha_signal_fusion",
+                    "conclusion": f"Long-term fusion ID {fusion_id}",
+                    "tags": [self.tag, "tier12_fusion", "alpha_signal"],
+                    "timestamp": timestamp,
+                    "reflexes": ["alpha_fusion", "cognitive_trace"],
+                    "meta_layer": "alpha_fusion_engine",
+                    "metadata": {
+                        "rationale": rationale,
+                        "strategy_snapshot": strategy,
+                        "performance": performance or {},
+                        "fusion_id": fusion_id
+                    }
                 }
-            }
-        )
+            )
+        except Exception as e:
+            log_event(f"[FUSION ERROR] Memory store failed: {e}", level="error")
 
-        print(f"[FUSION] ✅ Stored Alpha Signal → ID: {fused_id}")
-        return fused_id
+        print(f"✅ [FUSION STORED] Alpha signal fused → ID: {fusion_id}")
+        return fusion_id
 
     def recall_recent_signals(self, n=5):
         """
-        Pulls recent alpha signal events tagged by this agent.
+        Loopless query for recent alpha signal fusion memories.
         """
-        return sovereign_memory.recall_recent(minutes=180, top_k=n, filters={"tags": [self.tag]})
+        return sovereign_memory.recall_recent(
+            minutes=self.horizon_minutes,
+            top_k=n,
+            filters={"tags": [self.tag]}
+        )
 
-    def summarize_alpha_trends(self, n=10):
+    def summarize_alpha_trends(self, top_n=8):
         """
-        Loopless recursive trend summarizer.
+        Summarizes recent fused alpha rationales for pattern reasoning.
         """
-        signals = self.recall_recent_signals(n)
-        return self._recursive_summarize(signals, 0, [])
+        entries = self.recall_recent_signals(top_n)
+        return self._compress_trend_log(entries, 0, [])
 
-    def _recursive_summarize(self, entries, index, summary):
-        if index >= len(entries):
-            return "\n".join(summary) if summary else "No recent alpha signals."
+    def _compress_trend_log(self, entries, i, acc):
+        if i >= len(entries):
+            return "\n".join(acc) if acc else "No alpha fusion signals in memory."
+        try:
+            meta = entries[i].get("metadata", {})
+            rationale = meta.get("rationale", "[no rationale found]")
+            ts = meta.get("timestamp", "unknown")
+            acc.append(f"→ {ts}: {rationale}")
+        except Exception as e:
+            log_event(f"[TREND ERROR] Failed to parse entry: {e}", level="warning")
+        return self._compress_trend_log(entries, i + 1, acc)
 
-        entry = entries[index]
-        rationale = entry.get("metadata", {}).get("rationale", "")
-        timestamp = entry.get("timestamp", "unknown")
-        summary.append(f"→ {timestamp}: {rationale}")
-        return self._recursive_summarize(entries, index + 1, summary)
-
-
-# === Test Harness ===
+# === Reflex Harness ===
 if __name__ == "__main__":
     fuser = AlphaSignalFuser()
     fused = fuser.fuse_signals(
-        alpha_rationale="High-growth tech rotation justified by liquidity contraction",
-        strategy=["AAPL", "NVDA", "MSFT"],
-        performance={"gain": 0.12, "volatility": 0.04}
+        rationale="Rotation into AI-weighted momentum sectors due to sovereign risk recalibration.",
+        strategy={"assets": ["NVDA", "AAPL", "SMCI"], "mode": "momentum_biased"},
+        performance={"gain": 0.126, "drawdown": 0.03, "volatility": 0.041}
     )
 
-    print("\n[ALPHA SIGNALS]")
+    print("\n[🧠 RECENT SIGNALS]")
     for s in fuser.recall_recent_signals():
         print(s)
 
-    print("\n[SUMMARY]")
+    print("\n[🧠 ALPHA SUMMARY]")
     print(fuser.summarize_alpha_trends())

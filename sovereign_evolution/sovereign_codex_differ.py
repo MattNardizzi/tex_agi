@@ -6,12 +6,12 @@
 
 from difflib import unified_diff, SequenceMatcher
 from datetime import datetime
-from sentence_transformers import SentenceTransformer
-
 from agentic_ai.sovereign_memory import sovereign_memory
 from core_layer.tex_manifest import TEXPULSE
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+from utils.embedder_loader import load_embedder
+
+embedder = load_embedder()
 
 class SovereignCodexDiffer:
     def __init__(self):

@@ -33,9 +33,16 @@ def hash_url(url: str) -> str:
 
 def fetch_finnhub_news(limit=10):
     url = f"https://finnhub.io/api/v1/news?category=general&token={API_KEY}"
+    headers = {
+        "User-Agent": "Mozilla/5.0 (compatible; TexBot/1.0; +https://tex.agi)"
+    }
+
     try:
-        response = requests.get(url)
-        response.raise_for_status()
+        response = requests.get(url, headers=headers, timeout=5)
+        if response.status_code != 200:
+            print(f"[❌ FINNHUB ERROR] HTTP {response.status_code} → {url}")
+            return []
+
         news_items = response.json()[:limit]
         results = []
 

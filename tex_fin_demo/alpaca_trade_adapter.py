@@ -10,12 +10,14 @@ from dotenv import load_dotenv
 from alpaca_trade_api.rest import REST
 from utils.logging_utils import log_event
 
+# === Load environment variables from .env file ===
 load_dotenv()
 
-API_KEY = os.getenv("ALPACA_API_KEY")
-SECRET_KEY = os.getenv("ALPACA_SECRET_KEY")
-BASE_URL = "https://paper-api.alpaca.markets"
+API_KEY = os.getenv("APCA_API_KEY_ID")
+SECRET_KEY = os.getenv("APCA_API_SECRET_KEY")
+BASE_URL = os.getenv("APCA_API_BASE_URL", "https://paper-api.alpaca.markets")
 
+# === Initialize Alpaca REST client ===
 client = REST(API_KEY, SECRET_KEY, base_url=BASE_URL)
 
 def execute_stock_trade(symbol: str, side: str, qty: int = 1, reflex_meta: dict = None):

@@ -77,6 +77,9 @@ TEXPULSE = {
         "intensity": 1.0
     },
 
+    # === Reflex Cortex Switch for Finance Mode Activation ===
+    "financial_mode": False,
+
     "observer": "Vortex"
 }
 

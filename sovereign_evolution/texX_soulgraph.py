@@ -149,6 +149,27 @@ class TexSoulgraph:
 
         return node
 
+           
+
+    def imprint_justification(self, root_contradiction, epistemic_basis, action_taken, signal_amplitude, tags):
+        """
+        Injects epistemic justification into ChronoFabric as part of reflex trace.
+        """
+        from quantum_layer.chronofabric import encode_event_to_fabric
+        from utils.logging_utils import log_event
+
+        try:
+            justification_text = f"⚖️ Justification: {epistemic_basis} → Action: {action_taken}"
+            encode_event_to_fabric(
+                raw_text=justification_text,
+                emotion_vector=[signal_amplitude, root_contradiction, 0.0, 0.0],
+                entropy_level=root_contradiction,
+                tags=tags + ["justification", "reflex_logic"]
+            )
+            log_event(f"✅ [SOULGRAPH] Justification encoded: {justification_text}")
+        except Exception as e:
+            log_event(f"❌ [SOULGRAPH] Failed to imprint justification: {e}")
+
     def record_goal_decision(self, goal: dict, cycle_id: int, regret: float, integrity: float):
         belief_text = goal.get("goal", "undefined_goal")
         emotion = goal.get("emotion", "reflective")

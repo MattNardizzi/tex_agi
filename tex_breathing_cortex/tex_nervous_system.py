@@ -21,6 +21,7 @@ from core_agi_modules.neuro_harmonics import run_neuro_harmonics
 from core_agi_modules.temporal_decay_engine import run_temporal_decay_engine
 from core_layer.tex_self_eval_matrix import TexSelfEvalMatrix
 from tex_breathing_cortex.tex_heartbeat import pulse_soft_heartbeat
+from tex_breathing_cortex.decision_pressure import check_decision_pressure
 from utils.logging_utils import log_event
 
 override_cooldown_active = False
@@ -46,9 +47,13 @@ def route_internal_signal(signal_packet: dict) -> None:
         signature = hashlib.sha256(f"{signal_type}|{timestamp}|{pressure}".encode()).hexdigest()[:10]
 
         # === Reflex Mesh Gating ===
-        if not should_route_signal(signal_type).get("routed", True):
-            log_event(f"⛔ [NERVESYS] Signal '{signal_type}' gated by mesh router.", "info")
-            return
+        # ✅ Reflex demo override bypass
+        if signal_type.startswith("run_demo_") or signal_type == "demo_reflex_showcase":
+            log_event(f"🔓 [NERVESYS] Reflex demo signal '{signal_type}' bypassed mesh gate.", "info")
+        else:
+            if not should_route_signal(signal_type).get("routed", True):
+                log_event(f"⛔ [NERVESYS] Signal '{signal_type}' gated by mesh router.", "info")
+                return
 
         # === Log to Vector Memory + ChronoFabric ===
         memory_router.store(
@@ -150,6 +155,9 @@ def route_internal_signal(signal_packet: dict) -> None:
         # === Temporal Decay Reflex
         if signal_type in {"pulse_check", "idle"}:
             run_temporal_decay_engine()
+
+        # === Decision Pressure Reflex Trigger
+        check_decision_pressure()
 
         # === Pulse Reflex
         pulse_soft_heartbeat(reason=f"signal:{signal_type}")

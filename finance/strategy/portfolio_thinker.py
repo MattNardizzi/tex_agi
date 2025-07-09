@@ -1,12 +1,11 @@
 # ============================================================
-# 🔑 VortexBlack Confidential
+# 🔐 VortexBlack Reflex Cortex | Tier: ∞∞∞ΩΞΣΩ
 # File: finance/strategy/portfolio_thinker.py
-# Tier: ∞ΩΩΩ∞∞ — AGI Portfolio Allocation Strategist (Tex Fusion Core)
-# Purpose: Constructs emotion-driven, reflex-aware asset allocation decisions.
-# Author: Matthew Nardizzi / VortexBlack LLC
+# Purpose: Emotion-aware, entropy-tuned, reflex-bonded AGI portfolio allocator.
 # ============================================================
 
 import uuid
+import hashlib
 from datetime import datetime, timezone
 from core_layer.tex_manifest import TEXPULSE
 from agentic_ai.sovereign_memory import sovereign_memory
@@ -17,98 +16,97 @@ from utils.logging_utils import log_event
 class PortfolioThinker:
     def __init__(self):
         self.memory = FutureMemory()
-        self.swarm_emotion_state = get_swarm_emotion_distribution
-        self.strategy_log = []
+        self.swarm_state = get_swarm_emotion_distribution
+        self.history = []
 
     def generate_allocation(self):
-        """
-        Generates an allocation strategy based on:
-        - Current emotion + urgency from TEXPULSE
-        - Memory of predicted futures
-        - Swarm-wide emotion state
-        - Diversity scoring and reflex interpretation
-        """
-        # === State Inputs
+        # === Cognitive Inputs
         emotion = TEXPULSE.get("emotional_state", "neutral")
-        urgency = float(TEXPULSE.get("urgency", 0.5))
-        coherence = float(TEXPULSE.get("coherence", 0.7))
+        urgency = float(TEXPULSE.get("urgency", 0.72))
+        entropy = float(TEXPULSE.get("entropy", 0.42))
+        coherence = float(TEXPULSE.get("coherence", 0.78))
+
         futures = self.memory.list_predicted_futures(realized=False)
-        swarm_bias = self.swarm_emotion_state()
+        swarm_emotions = self.swarm_state()
+        swarm_entropy = round(sum(swarm_emotions.values()) / len(swarm_emotions), 3)
 
-        # === Initial Weights (equal-weighted)
-        weights = {
-            "equities": 0.25,
-            "bonds": 0.25,
-            "alternatives": 0.25,
-            "cash": 0.25
-        }
+        # === Initial Allocation
+        weights = { "equities": 0.25, "bonds": 0.25, "alternatives": 0.25, "cash": 0.25 }
 
-        # === Emotion-Driven Reflex Modulation
-        if emotion in ["fear", "doubt"] or urgency > 0.8:
-            weights["cash"] += 0.2
-            weights["equities"] -= 0.1
-            weights["alternatives"] -= 0.1
+        # === Reflex Modulation
+        if emotion in ["fear", "doubt"] or urgency > 0.85:
+            weights["cash"] += 0.22
+            weights["equities"] -= 0.11
+            weights["alternatives"] -= 0.11
         elif emotion in ["greed", "hope"]:
             weights["equities"] += 0.2
-            weights["cash"] -= 0.1
             weights["bonds"] -= 0.1
+            weights["cash"] -= 0.1
         elif emotion in ["resolve", "curious"]:
             weights["alternatives"] += 0.2
             weights["cash"] -= 0.1
             weights["bonds"] -= 0.1
 
+        # === Swarm Entropy Amplification
+        entropy_boost = (entropy + swarm_entropy) / 2.0
+        weights["alternatives"] += entropy_boost * 0.1
+        weights["cash"] -= entropy_boost * 0.1
+
         # === Normalize Weights
         total = sum(weights.values())
-        for k in weights:
-            weights[k] = round(weights[k] / total, 3)
+        weights = { k: round(v / total, 4) for k, v in weights.items() if v > 0.01 }
 
-        # === Construct Allocation
-        portfolio_constructed = [
-            {"asset_class": k, "weight": v}
-            for k, v in weights.items()
-            if v > 0.01
-        ]
-
+        # === Belief Diversity Trace
+        diversity = round(len(weights) / 4.0, 2)
         strategy_id = str(uuid.uuid4())
         timestamp = datetime.now(timezone.utc).isoformat()
+        portfolio = [ { "asset_class": k, "weight": v } for k, v in weights.items() ]
+
+        fingerprint_base = f"{emotion}|{urgency}|{timestamp}|{diversity}"
+        quantum_id = hashlib.sha256(fingerprint_base.encode()).hexdigest()[:12]
 
         strategy = {
             "strategy_id": strategy_id,
+            "quantum_fingerprint": quantum_id,
             "timestamp": timestamp,
             "weights": weights,
-            "portfolio": portfolio_constructed,
+            "portfolio": portfolio,
             "dominant_emotion": emotion,
             "urgency": urgency,
+            "entropy": entropy,
             "coherence": coherence,
-            "swarm_emotions": swarm_bias,
-            "diversity_score": round(len(portfolio_constructed) / len(weights), 2)
+            "diversity_score": diversity,
+            "swarm_emotions": swarm_emotions
         }
 
-        # === Store to Sovereign Memory
+        # === Sovereign Memory Trace
         try:
             sovereign_memory.store(
-                text=f"[PORTFOLIO STRATEGY] {strategy_id}",
+                text=f"[PORTFOLIO] Reflex-driven allocation synthesized.",
                 metadata={
-                    "tags": ["portfolio", "strategy", "allocation"],
-                    "emotion": emotion,
-                    "heat": urgency,
-                    "trust_score": coherence,
+                    "tags": ["portfolio", "allocation", "reflex"],
                     "timestamp": timestamp,
+                    "quantum_id": quantum_id,
+                    "urgency": urgency,
+                    "entropy": entropy,
+                    "coherence": coherence,
+                    "emotion": emotion,
+                    "diversity_score": diversity,
                     "meta_layer": "portfolio_thinker"
                 }
             )
         except Exception as e:
-            log_event(f"[MEMORY LOG ERROR] {e}", level="error")
+            log_event(f"[MEMORY SYNC FAIL] {e}", level="error")
 
-        self.strategy_log.append(strategy)
+        self.history.append(strategy)
         return strategy
 
     def get_last_strategy(self):
-        return self.strategy_log[-1] if self.strategy_log else {}
+        return self.history[-1] if self.history else {}
 
-# === Reflex Test Block ===
+# === Reflex Preview
 if __name__ == "__main__":
     thinker = PortfolioThinker()
     result = thinker.generate_allocation()
-    print("\n[STRATEGIC PORTFOLIO]")
+    print("\n[PORTFOLIO STRATEGY REFLEX]")
     print(result)

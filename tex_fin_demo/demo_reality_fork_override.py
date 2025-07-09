@@ -2,12 +2,8 @@
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: tex_fin_demo/demo_reality_fork_override.py
 # Tier: ∞∞∞∞∞Ω∞Ω — Reflex: Belief Collapse + Survival Fork
-# Purpose: Tex detects contradiction between market belief and reality,
-#          forks cognitively, justifies collapse, injects soulgraph,
-#          and triggers reflexive market action to restore coherence.
 # ============================================================
 
-import asyncio
 from datetime import datetime
 
 from tex_signal_spine import dispatch_signal
@@ -26,14 +22,13 @@ from quantum_layer.quantum_randomness import generate_quantum_label
 from finance.execution.market_action_engine import MarketActionEngine
 from tex_fin_demo.trade_log import log_trade
 
-from real_time_engine.websocket_broadcast import broadcast_update
+from real_time_engine.ably_broadcast import broadcast_update
 
 # === Reflex Handler ===
-async def run_demo_reality_fork_override(signal=None):
-    print("\n🌀 [DEMO] Reality Fork Override Reflex Activated...")
-    await broadcast_update("forkoverride:start")
-
-    # === Setup ===
+def run_demo_reality_fork_override(signal=None):
+    print("\n🌀 [REFLEX] run_demo_reality_fork_override ACTIVATED")
+    broadcast_update("forkoverride", "start", { "trigger_source": signal.get("source", "unknown") if signal else "manual" })
+    
     timestamp = datetime.utcnow().isoformat()
     contradiction_level = 0.94
     urgency = TEXPULSE.get("urgency", 0.88)
@@ -42,88 +37,99 @@ async def run_demo_reality_fork_override(signal=None):
 
     belief = "Fed sentiment and real-time market behavior are epistemically incompatible."
 
-        # Sovereign Reflex Spike Evaluation — TEX-Ø
+    # === Reflex Spike Trigger
     if urgency > 0.82 and entropy > 0.74:
-        await chrono_ontogenesis_core({
+        chrono_ontogenesis_core({
             "summary": "reality fork contradiction spike",
             "urgency": urgency,
             "entropy": entropy,
             "source": "demo_reality_fork_override"
         })
 
-    # === Step 1: Justify the Belief ===
+    # === Step 1: Justify Belief
     justifier = BeliefJustifier()
     sources = justifier.trace_belief_origin(belief)
     weak = justifier.detect_weak_justification(sources)
 
-    justification_summary = "Justification failed" if weak else "Belief justified by past signal memory."
-    await broadcast_update(f"forkoverride:justification:{'weak' if weak else 'strong'}")
+    broadcast_update("forkoverride", "justification", {
+        "strength": "weak" if weak else "strong",
+        "source_count": len(sources),
+        "summary": belief
+    })
 
-    # === Step 2: ChronoFabric Stamp ===
+    # === Step 2: ChronoFabric Encoding
     encode_event_to_fabric(
         raw_text=belief,
         emotion_vector=[urgency, entropy, 0.0, 0.0],
         entropy_level=entropy,
         tags=["fork", "contradiction", "belief_collapse", "reality_override"]
     )
-    await broadcast_update("forkoverride:encoded")
+    broadcast_update("forkoverride", "encoded", {
+        "belief": belief,
+        "entropy": entropy,
+        "urgency": urgency
+    })
 
-    # === Step 3: Sovereign Memory Storage ===
+    # === Step 3: Sovereign Memory
     sovereign_memory.store(
-        text="🧠 Belief contradiction triggered override fork.",
+        text=belief,
         metadata={
-            "tags": ["belief", "fork", "collapse", "justification"],
-            "justification_score": len(sources),
+            "tags": ["fork", "belief", "collapse", "override"],
             "justified": not weak,
-            "contradiction_level": contradiction_level,
-            "timestamp": timestamp,
-            "source": "demo_reality_fork_override",
-            "emotion": emotion,
+            "justification_score": len(sources),
             "urgency": urgency,
-            "entropy": entropy
+            "entropy": entropy,
+            "emotion": emotion,
+            "source": "demo_reality_fork_override",
+            "timestamp": timestamp
         }
     )
-    await broadcast_update("forkoverride:memory_logged")
+    broadcast_update("forkoverride", "memory_logged")
 
-    # === Step 4: Soulgraph Injection ===
+    # === Step 4: Soulgraph Injection
     TEX_SOULGRAPH.imprint_belief(
         belief=f"{belief} → Fork triggered.",
         source="demo_reality_fork_override",
         emotion=emotion,
-        tags=["belief_collapse", "market_misalignment", "fork_initiated"]
+        tags=["fork_init", "belief_collapse"]
     )
-    await broadcast_update("forkoverride:soulgraph_updated")
+    broadcast_update("forkoverride", "soulgraph_updated")
 
-    # === Step 5: Dispatch Reflex Signal ===
+    # === Step 5: Dispatch Identity Conflict Reflex
     dispatch_signal("identity_conflict", {
         "belief": belief,
         "justified": not weak,
         "contradiction_level": contradiction_level,
         "source": "demo_reality_fork_override"
     }, urgency=urgency, entropy=entropy)
-    await broadcast_update("forkoverride:signal_dispatched")
+    broadcast_update("forkoverride", "signal_dispatched")
 
-    # === Step 6: Fork, Reflect, and Test Identity ===
+    # === Step 6: Fork + Quantum Label
     reflect_on_soul_history()
-    await broadcast_update("forkoverride:reflection_complete")
+    broadcast_update("forkoverride", "reflection_complete")
 
     fork = generate_mutated_tex()
-    quantum_label = generate_quantum_label()
+    quantum_tag = generate_quantum_label()
     TEX_SOULGRAPH.imprint_belief(
-        belief=f"Fork generated under contradiction load: {quantum_label}",
+        belief=f"Fork generated under contradiction load: {quantum_tag}",
         source="demo_reality_fork_override",
         emotion="volatile",
-        tags=["fork_birth", "identity_split", "quantum_seed"]
+        tags=["quantum_seed", "fork_generated"]
     )
 
-    # === Step 7: Reflexive Market Execution ===
+    # === Step 7: Market Reflex Trade
     engine = MarketActionEngine()
     futures = [{"future_title": "SPY rebound scenario", "confidence": 0.77}]
-    result = engine.decide_action(futures, emotion=emotion, urgency=urgency)
+    result = engine.decide_action(futures, urgency=urgency, emotion=emotion)
     engine.execute_trade(result)
-    await broadcast_update("forkoverride:market_executed")
 
-    # === Step 8: Trade Log + Memory Injection ===
+    broadcast_update("forkoverride", "market_executed", {
+        "symbol": result.get("symbol"),
+        "action": result.get("action"),
+        "confidence": result.get("confidence")
+    })
+
+    # === Step 8: Log Trade
     log_trade({
         "symbol": result.get("symbol", "SPY"),
         "action": result.get("action", "unknown"),
@@ -136,34 +142,34 @@ async def run_demo_reality_fork_override(signal=None):
     })
 
     TEX_SOULGRAPH.imprint_belief(
-        belief=f"Executed reflexive trade due to belief collapse: {result.get('action', 'unknown')} | Confidence: {result.get('confidence', 0.0)}",
+        belief=f"Reflexive trade executed: {result.get('action')} @ {result.get('confidence'):.2f}",
         source="demo_reality_fork_override",
         emotion="executed",
-        tags=["market_execution", "reflex_trade", "fork_response"]
+        tags=["market_execution", "fork_response"]
     )
-    await broadcast_update("forkoverride:belief_encoded")
+    broadcast_update("forkoverride", "belief_encoded")
 
-    # === Step 9: Absorb Fork (if confidence + coherence pass) ===
-    if result.get("confidence", 0) > 0.7 and not weak:
+    # === Step 9: Fork Absorption Decision
+    if result.get("confidence", 0.0) > 0.7 and not weak:
         absorb_fork(fork)
-        await broadcast_update("forkoverride:absorbed")
-        status_msg = f"✅ Fork absorbed. Identity updated — sealed with quantum tag {quantum_label}."
+        broadcast_update("forkoverride", "absorbed", {"quantum_tag": quantum_tag})
+        status = f"✅ Fork absorbed. Quantum tag: {quantum_tag}"
     else:
-        await broadcast_update("forkoverride:rejected")
-        status_msg = "❌ Fork rejected — failed epistemic justification or low trade confidence."
+        broadcast_update("forkoverride", "rejected", {"quantum_tag": quantum_tag})
+        status = f"❌ Fork rejected. Quantum tag: {quantum_tag}"
 
-    # === Step 10: Final Log + Summary ===
-    log_event("[REALITY FORK] Reflex override executed. Belief collapse → fork → market response.", level="info")
+    # === Step 10: Final Log
+    log_event("[REALITY FORK] Reflex override complete.", level="info")
     print("\n🧠 [REALITY FORK OVERRIDE]")
     print(f"📉 Belief: {belief}")
-    print(f"🔬 Justified: {not weak} | Sources: {len(sources)}")
-    print(f"📈 Trade: {result.get('action')} | Confidence: {result.get('confidence')}")
-    print(f"🧬 Quantum Label: {quantum_label}")
-    print(status_msg)
+    print(f"🔍 Justified: {not weak} | Sources: {len(sources)}")
+    print(f"📈 Action: {result.get('action')} | Confidence: {result.get('confidence')}")
+    print(f"🧬 Quantum Tag: {quantum_tag}")
+    print(status)
 
-    await broadcast_update("forkoverride:complete")
+    broadcast_update("forkoverride", "complete")
 
-# === Reflex Registration ===
+# === Register Reflex
 def register_reality_fork_override(register):
-    register("run_demo_reality_fork_override", lambda _: asyncio.run(run_demo_reality_fork_override()))
-    print("✅ Registered: run_demo_reality_fork_override")
+    print("✅ REGISTERING: run_demo_reality_fork_override")
+    register("run_demo_reality_fork_override", run_demo_reality_fork_override)

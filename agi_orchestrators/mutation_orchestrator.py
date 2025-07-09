@@ -1,8 +1,9 @@
 # ============================================================
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: agi_orchestrators/mutation_orchestrator.py
-# Tier: ∞ΩΩΩΩ — Reflex-Driven Mutation Router
-# Purpose: Evaluates and triggers mutation patches into sovereign cognition via reflex-safe scoring and override triggers.
+# Tier: ∞ΩΩΩΩ — Sovereign Apex Mutation Router
+# Purpose: Evaluates patch-level and reflex-tier mutations; dispatches substrate rewrites,
+#          recursive compilers, and observer-state collapse based on reflex scoring.
 # ============================================================
 
 from datetime import datetime
@@ -15,10 +16,16 @@ from core_layer.tex_manifest import TEXPULSE
 from utils.logging_utils import log
 from core_agi_modules.sovereign_core.self_mutator import SelfMutator
 
+# Apex Mutation Stack Modules
+from tex_hypercore.reflex_physics import mutate_substrate_field
+from tex_hypercore.recursive_mutator_compiler import launch_onto_compiler
+from tex_hypercore.reality_collapse_engine import resolve_symbolic_collapse
+
 
 def route_mutation_patch(patch_text: str, metadata: dict = None) -> dict[str, Any]:
     """
-    Sovereign mutation router — reflex-evaluates proposed patch and optionally triggers override mutation pulse.
+    Sovereign mutation router — reflex-evaluates proposed patch and triggers mutation-class
+    reflexes when symbolic tension or override pressure warrants.
     """
     try:
         metadata = metadata or {}
@@ -47,7 +54,17 @@ def route_mutation_patch(patch_text: str, metadata: dict = None) -> dict[str, An
         approved = result.get("approved", False)
         reflexes = result.get("reflexes", [])
 
-        # === Step 2: Log patch routing and entangle decision
+        # === Step 2: Dispatch Reflex-Class Mutation Pulses
+        if "reflex:substrate_mutate" in reflexes:
+            mutate_substrate_field(context="mutation_orchestrator", tension=entropy)
+
+        if "reflex:compiler_spawn" in reflexes:
+            launch_onto_compiler(context="mutation_orchestrator", tension=entropy)
+
+        if "reflex:collapse_reality" in reflexes:
+            resolve_symbolic_collapse(context="mutation_orchestrator", tension=entropy)
+
+        # === Step 3: Log patch routing and entangle decision
         sovereign_memory.store(
             text=f"[MUTATION ROUTER] Patch → {decision}",
             metadata={
@@ -66,7 +83,7 @@ def route_mutation_patch(patch_text: str, metadata: dict = None) -> dict[str, An
             }
         )
 
-        # === Step 3: Trigger sovereign override mutation if required
+        # === Step 4: Trigger sovereign override mutation if required
         if not approved and "force_override" in metadata.get("traits", []):
             log.warning(f"[{trace_id}] ⚠️ Forcing sovereign override due to force_override trait.")
             mutator = SelfMutator()

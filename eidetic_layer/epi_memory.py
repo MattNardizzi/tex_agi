@@ -1,0 +1,18 @@
+EPI_STORE = {
+    "collapse_macro_threat": {
+        "belief": "Sector rotation is inevitable when the central narrative fails.",
+        "confidence": 0.94,
+        "origin": "nonhistory",
+        "tags": ["eidetic", "macro", "belief"]
+    },
+    "default_trace": {
+        "belief": "In the absence of data, belief must still anchor identity.",
+        "confidence": 0.89,
+        "origin": "eidetic_void",
+        "tags": ["default", "identity"]
+    }
+}
+
+def recall_eidetic_trace(summary):
+    key = summary.lower().replace(" ", "_")
+    return EPI_STORE.get(key, EPI_STORE["default_trace"])

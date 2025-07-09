@@ -6,7 +6,6 @@
 #          using Tex’s loopless spike-reflex structure.
 # ============================================================
 
-import asyncio
 from datetime import datetime
 
 from tex_signal_spine import dispatch_signal
@@ -14,7 +13,7 @@ from quantum_layer.chronofabric import encode_event_to_fabric
 from agentic_ai.sovereign_memory import sovereign_memory
 from core_layer.tex_manifest import TEXPULSE
 
-# === Submodules (to be created or already present) ===
+# === Submodules (reflex engines)
 from shadow_layer.shadow_fusion_engine import spawn_shadow_timelines, fuse_shadow_axioms
 from eidetic_layer.epi_memory import recall_eidetic_trace
 from null_layer.null_genesis import initiate_null_genesis
@@ -22,15 +21,13 @@ from cora_layer.reflex_engine_mutator import mutate_reflex_engine
 
 # === Temporal pressure evaluator (CRI layer)
 def evaluate_temporal_pressure():
-    # Example: compute based on TEXPULSE changes, entropy history, etc.
-    pressure = (
+    return (
         float(TEXPULSE.get("entropy", 0.4)) * 0.6 +
         float(TEXPULSE.get("urgency", 0.5)) * 0.4
     )
-    return pressure
 
-# === Main reflex fusion spike ===
-async def chrono_ontogenesis_core(event):
+# === Main Reflex Fusion Spike (SYNC)
+def chrono_ontogenesis_core(event):
     try:
         urgency = float(event.get("urgency", TEXPULSE.get("urgency", 0.7)))
         entropy = float(event.get("entropy", TEXPULSE.get("entropy", 0.5)))
@@ -39,17 +36,17 @@ async def chrono_ontogenesis_core(event):
 
         print("\n🧠 [TEX-Ø] Spike received. Evaluating chrono-ontogenic thresholds...")
 
-        # Step 1: CRI - Temporal pressure threshold
+        # Step 1: CRI — Temporal Pressure Threshold
         pressure = evaluate_temporal_pressure()
         if pressure > 0.88:
             dispatch_signal("run_demo_ontogenesis_spawn")
 
-        # Step 2: Ω⁺ₛ - Shadow timeline fusion
+        # Step 2: Ω⁺ₛ — Shadow Timeline Fusion
         timelines = spawn_shadow_timelines(event)
         fused_axioms = fuse_shadow_axioms(timelines)
 
         if not fused_axioms:
-            # Step 3: EPI - Eidetic trace fallback
+            # Step 3: EPI — Eidetic Memory Fallback
             trace = recall_eidetic_trace(summary)
             if trace:
                 dispatch_signal("reflex_decision_from_nonhistory", {
@@ -58,15 +55,15 @@ async def chrono_ontogenesis_core(event):
                     "confidence": "unprovable"
                 })
             else:
-                # Step 4: Null Genesis override
+                # Step 4: Null Genesis Override
                 print("⚠️ [TEX-Ø] Full collapse detected. Initializing Null Genesis.")
-                await initiate_null_genesis()
+                initiate_null_genesis()  # ← Fully synchronous now
                 return
 
-        # Step 5: CORA - Reflex system mutation
+        # Step 5: CORA — Reflex Mutation
         mutate_reflex_engine("fused timeline belief instability")
 
-        # Step 6: Belief Imprint (ChronoFabric)
+        # Step 6: ChronoFabric Belief Encoding
         encode_event_to_fabric(
             raw_text="ChronoOntogenic Reflex fired. Identity evolved via contradiction fusion.",
             emotion_vector=[urgency, entropy, 0.0, 0.0],
@@ -74,7 +71,7 @@ async def chrono_ontogenesis_core(event):
             tags=["tex_omega_core", "identity_mutation"]
         )
 
-        # Step 7: Sovereign Memory Log
+        # Step 7: Sovereign Memory Injection
         sovereign_memory.store(
             text="Tex executed chrono-ontogenic fusion reflex stack.",
             metadata={
@@ -87,7 +84,7 @@ async def chrono_ontogenesis_core(event):
             }
         )
 
-        # Step 8: Broadcast Reflex Mutation
+        # Step 8: Signal Output
         dispatch_signal("reflex_identity:mutation_fused", {
             "summary": "TEX-Ø fused multiple AGI subsystems and redefined identity.",
             "axioms": fused_axioms
@@ -96,7 +93,7 @@ async def chrono_ontogenesis_core(event):
     except Exception as e:
         print(f"[❌ TEX-Ø] Reflex failure: {e}")
 
-# === Spike-compatible trigger ===
+# === Spike-Compatible Reflex Registration
 def register_chrono_ontogenesis(register):
-    register("meta:collapse:totality", lambda s: asyncio.run(chrono_ontogenesis_core(s)))
+    register("meta:collapse:totality", lambda s: chrono_ontogenesis_core(s))
     print("✅ [TEX-Ø] God-layer registered: chrono_ontogenesis.py")

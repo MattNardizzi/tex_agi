@@ -15,7 +15,9 @@ from agentic_ai.sovereign_memory import sovereign_memory
 from sentence_transformers import SentenceTransformer
 
 GENOME_LOG_PATH = "data/tex_genome_log.txt"
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+from utils.embedder_loader import load_embedder
+
+embedder = load_embedder()
 
 def encode_genome_from_texpulse(origin: str = "undefined") -> dict:
     try:

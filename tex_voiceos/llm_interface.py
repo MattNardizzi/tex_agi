@@ -6,7 +6,6 @@
 
 import uuid
 from datetime import datetime
-from sentence_transformers import SentenceTransformer
 
 from agentic_ai.sovereign_memory import sovereign_memory
 from agentic_ai.multi_voice_reasoning import run_internal_debate
@@ -20,7 +19,9 @@ from core_agi_modules.tex_memory_orchestrator import store_and_process_memory
 from tex_goal_reflex.goal_reflex import GoalReflex
 from core_agi_modules.intent_object import IntentObject
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+from utils.embedder_loader import load_embedder
+
+embedder = load_embedder()
 
 class LLMInterface:
     def __init__(self, identity_signal="Tex", enable_feedback=True):

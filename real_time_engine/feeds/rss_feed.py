@@ -5,7 +5,6 @@
 # ============================================================
 
 import time
-import random
 import feedparser
 import hashlib
 from bs4 import BeautifulSoup
@@ -13,12 +12,15 @@ from datetime import datetime, timezone
 
 from real_time_engine.processors.summarizer import summarizer
 from real_time_engine.processors.urgency_classifier import enhanced_urgency_score
-from real_time_engine.processors.embedder import embed_text
 from real_time_engine.processors.dispatch_bus import dispatch_to_tex
 from real_time_engine.processors.sentiment_analyzer import analyzer as sentiment_analyzer
+from utils.safe_fetch import safe_fetch
+
+from sentence_transformers import SentenceTransformer  # ✅ Direct safe embedder
+embedder = SentenceTransformer("all-MiniLM-L6-v2", device="cpu")
+
 # === Global RSS Sources ===
 RSS_FEEDS = [
-    # Finance & Business
     "https://www.cnbc.com/id/100003114/device/rss/rss.html",
     "https://feeds.a.dj.com/rss/RSSMarketsMain.xml",
     "https://www.bloomberg.com/feed/podcast/etf-report.xml",
@@ -28,21 +30,15 @@ RSS_FEEDS = [
     "https://finance.yahoo.com/news/rssindex",
     "https://news.google.com/rss/search?q=business&hl=en-US&gl=US&ceid=US:en",
     "http://feeds.bbci.co.uk/news/business/rss.xml",
-
-    # Crypto & Forex
     "https://cointelegraph.com/rss",
     "https://bitcoinmagazine.com/.rss/full",
     "https://www.dailyfx.com/feeds/forex-market-news",
     "https://www.forexlive.com/feed/news",
     "https://www.fxstreet.com/rss/news",
-
-    # Commodities
     "https://oilprice.com/rss/main",
     "https://www.investing.com/rss/news_301.rss",
     "https://www.investing.com/rss/news_4.rss",
     "https://www.kitco.com/rss/",
-
-    # Macro & Central Banks
     "https://www.weforum.org/agenda/rss.xml",
     "https://seekingalpha.com/market_currents.xml",
     "https://www.zerohedge.com/fullrss.xml",
@@ -53,14 +49,12 @@ RSS_FEEDS = [
 # === Deduplication Cache ===
 processed_hashes = set()
 
-# === RSS Utility Functions ===
 def clean_html(html: str) -> str:
     return BeautifulSoup(html or "", "html.parser").get_text(" ", strip=True)
 
 def hash_url(url: str) -> str:
     return hashlib.md5(url.encode("utf-8")).hexdigest()
 
-# === Main RSS Loop ===
 def start():
     print("[✅ RSS] Starting global RSS stream...")
     while True:
@@ -76,11 +70,16 @@ def start():
                         continue
                     processed_hashes.add(url_hash)
 
+                    # ✅ Validate and override unreachable URLs
+                    if not safe_fetch(url):
+                        print(f"[⚠️ SKIPPED] Unreachable URL: {url}")
+                        url = "[UNREACHABLE]"
+
                     summary_raw = clean_html(getattr(entry, "summary", title))
                     summary = summarizer.summarize(summary_raw)
                     urgency = enhanced_urgency_score(title)
                     sentiment = sentiment_analyzer.classify_sentiment(f"{title} {summary}")
-                    embedding = embed_text(summary)
+                    embedding = embedder.encode(summary, normalize_embeddings=True).tolist()
 
                     enriched = {
                         "source": "rss",

@@ -144,22 +144,29 @@ class MilvusMemoryRouter:
 
     def query_by_vector(self, vector: List[float], top_k: int = 5):
         try:
-            combined = vector + [0.0, 0.0, 0.0, 0.0]
-            payload = {
-                "collection_name": self.collection,
-                "vector": combined,
-                "anns_field": "vector_combined",
-                "metric_type": "COSINE",
-                "params": {"nprobe": 10},
-                "limit": top_k,
-                "output_fields": ["summary", "timestamp", "tags", "entropy"]
-            }
+            combined = vector + [0.0, 0.0, 0.0, 0.0]  # add emotion dims
+
             res = requests.post(
-                f"{self.endpoint}/v2/vectordb/records/search",
+                f"{self.endpoint}/v2/vectordb/entities/search",
                 headers=self.headers,
-                json=payload
+                json={
+                    "collectionName": self.collection,
+                    "annsField": "vector_combined",
+                    "data": [combined],
+                    "limit": top_k,
+                    "outputFields": ["summary", "timestamp", "tags", "entropy"],
+                    "searchParams": {"metric_type": "COSINE", "params": {"nprobe": 10}}
+                },
+                timeout=10
             )
-            return res.json().get("data", [])
+
+            if res.status_code != 200:
+                print(f"❌ [QUERY FAILED] HTTP {res.status_code} → {res.text[:200]}")
+                return []
+
+            content = res.json()
+            return content.get("data", [])
+
         except Exception:
             print("❌ [QUERY ERROR]")
             traceback.print_exc()

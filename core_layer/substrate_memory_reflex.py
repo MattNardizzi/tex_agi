@@ -55,3 +55,5 @@ def handle_substrate_shift(signal):
             "tags": ["substrate", "machine_fingerprint", "identity_context", "reflex"]
         }
     )
+from tex_signal_spine import register
+register("substrate_shift", handle_substrate_shift)
