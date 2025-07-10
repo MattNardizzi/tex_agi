@@ -1,8 +1,8 @@
 # ============================================================
 # © 2025 VortexBlack / Sovereign Cognition. All rights reserved.
 # File: future_layer/future_decision_engine.py
-# Tier: ∞ΩΩΩ∞Ω — Tex Strategic Futures Cortex (Loopless, Sovereign Memory-Aware)
-# Purpose: Scores future paths using risk, emotion, urgency, memory, and coherence.
+# Tier: ∞ΩΩΩ∞Ω — Tex Strategic Futures Cortex (Loopless, Reflex-Fused, Ontology-Aware)
+# Purpose: Scores future paths using risk, emotion, urgency, memory, reflex fusion, and contradiction feedback.
 # ============================================================
 
 from datetime import datetime
@@ -10,6 +10,16 @@ from core_layer.tex_manifest import TEXPULSE
 from agentic_ai.sovereign_memory import sovereign_memory
 from finance.risk.risk_assessment_module import RiskAssessmentModule
 from utils.logging_utils import log_event
+
+# === Reflex Fusion Imports ===
+from tex_breathing_cortex.impulse_engine import sovereign_impulse_engine
+from reflex.reality_reflex_writer import rewrite_reality_if_needed
+from tex_brain_regions.mutation_brain import score_mutation_patch
+
+# === Delayed import to prevent circular import from meta_market_cortex
+def safe_meta_market_cycle(*args, **kwargs):
+    from tex_fin_demo.meta_market_cortex import run_meta_market_cycle
+    return run_meta_market_cycle(*args, **kwargs)
 
 class FutureDecisionEngine:
     def __init__(self):
@@ -37,36 +47,66 @@ class FutureDecisionEngine:
                 TEXPULSE.get("emotional_state", "neutral")
             )
 
-        # === Risk Assessment
         risk_data = self.risk_assessor.batch_assess(futures)
-
-        # === Recent Memory Context
         recent_memory = sovereign_memory.recall_recent(top_k=25, filters={"tags": ["market", "future", "signal"]})
 
-        # === Score function
         def score_future(future, risk, memory_context):
-            title = future.get("future_title", "")
+            title = future.get("future_title", "Untitled")
             confidence = future.get("confidence", 0.5)
-            volatility = risk.get("volatility_factor", 0.5)
             urgency = TEXPULSE.get("urgency", 0.5)
             coherence = TEXPULSE.get("coherence", 0.5)
+            drift_factor = max(0.1, 1.0 - abs(urgency - coherence))
+            risk_score = risk.get("combined_risk_score", 0.5)
+
+            if "combined_risk_score" not in risk:
+                log_event(f"⚠️ Missing 'combined_risk_score' in risk: {risk}", level="warning")
 
             emotion_multiplier = self._emotion_weight(confidence)
             memory_multiplier = self._memory_boost(title, memory_context)
-            drift_factor = 1.0 - abs(urgency - coherence)
 
-            raw_score = confidence * (1 - risk["combined_risk_score"])
+            raw_score = confidence * (1 - risk_score)
             return round(raw_score * emotion_multiplier * memory_multiplier * drift_factor, 4)
 
-        # === Score + Sort
-        scored = [
-            {
+        # === Score + Reflex Layer ===
+        scored = []
+        contradiction_drift = 0.0
+
+        for f, r in zip(futures, risk_data):
+            score = score_future(f, r, recent_memory)
+            scored.append({
                 "future": f,
                 "risk_assessment": r,
-                "priority_score": score_future(f, r, recent_memory)
+                "priority_score": score
+            })
+
+            # === Meta-Market Contradiction Check
+            result = safe_meta_market_cycle(
+                latest_signal=f.get("future_title", "unknown_signal"),
+                source="future_decider",
+                belief_hint=f.get("belief_hint", "undefined")
+            )
+            contradiction_drift = max(contradiction_drift, result["drift"]["contradiction_drift"])
+
+        # === Sovereign Impulse Override
+        sovereign_impulse_engine()
+
+        # === Ontology Rewrite if Drift > Threshold
+        if contradiction_drift > 0.92:
+            rewrite_reality_if_needed(trigger_reason="future_decision_drift", contradiction_level=contradiction_drift)
+
+        # === Mutation Hook if Instability Detected
+        if contradiction_drift > 0.88:
+            mutation_code = "# placeholder for mutation logic injection"
+            mutation_packet = {
+                "patch_id": f"futmut-{datetime.utcnow().isoformat()}",
+                "target_module": "future_decision_engine",
+                "function": "score_future",
+                "code": mutation_code,
+                "justification": "Contradiction drift during prioritization",
+                "traits": ["contradiction", "reflex_trigger"],
+                "reason": "future_scoring_reflex"
             }
-            for f, r in zip(futures, risk_data)
-        ]
+            score_mutation_patch(mutation_packet)
 
         self.last_ranked_futures = sorted(scored, key=lambda x: x["priority_score"], reverse=True)
 

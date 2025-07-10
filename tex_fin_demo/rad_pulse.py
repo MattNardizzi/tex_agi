@@ -13,10 +13,10 @@ import numpy as np
 from quantum_layer.quantum_randomness import generate_quantum_label
 from agentic_ai.sovereign_memory import sovereign_memory
 from utils.logging_utils import log_event
-from utils.semantic_embedder import embed_text_semantically
 from tex_signal_spine import dispatch_signal
 from core_layer.tex_manifest import TEXPULSE
 from tex_fin_demo.timeline_tension_mesh import inject_signal_into_mesh
+from agentic_ai.milvus_memory_router import memory_router  # 🔁 use built-in embedder
 
 # === Configurable Reflex Thresholds (Fine-tuned by contradiction drift model)
 REFLEX_THRESHOLD = 0.72
@@ -26,6 +26,7 @@ def generate_activation_vector(urgency, entropy):
     return [round(urgency, 4), round(entropy, 4), 0.0, 0.0]
 
 # === RAD Pulse Generator — Maximum Intelligence
+
 def create_rad_pulse(
     signal_text: str,
     source: str = "unknown",
@@ -35,7 +36,7 @@ def create_rad_pulse(
 ) -> dict:
     quantum_tag = generate_quantum_label()
     timestamp = datetime.utcnow().isoformat()
-    semantic_vector = embed_text_semantically(signal_text)
+    semantic_vector = memory_router.embed_text(signal_text)
 
     activation_vector = generate_activation_vector(urgency, entropy)
 
@@ -66,7 +67,7 @@ def create_rad_pulse(
             "urgency": urgency,
             "entropy": entropy,
             "emotion": emotion,
-            "semantic_vector": semantic_vector.tolist(),
+            "semantic_vector": semantic_vector,
             "timestamp": timestamp,
             "reflex_status": "pending",
             "origin": source
@@ -83,7 +84,7 @@ def create_rad_pulse(
         "urgency": urgency,
         "entropy": entropy,
         "emotion": emotion,
-        "semantic_vector": semantic_vector.tolist()
+        "semantic_vector": semantic_vector
     })
 
     # === Log Output

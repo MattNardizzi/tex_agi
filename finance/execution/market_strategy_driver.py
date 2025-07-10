@@ -41,6 +41,11 @@ try:
 except ImportError:
     SOVEREIGN_ENABLED = False
 
+# === Delayed import to break circular dependency with meta_market_cortex
+def safe_meta_market_cycle(*args, **kwargs):
+    from tex_fin_demo.meta_market_cortex import run_meta_market_cycle
+    return run_meta_market_cycle(*args, **kwargs)
+
 
 class MarketStrategyDriver:
     def __init__(self):

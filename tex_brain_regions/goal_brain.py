@@ -23,7 +23,6 @@ def process_goal_pulse(goal: str, progress: float, integrity: float) -> dict:
     Sovereign goal execution pulse evaluator.
     Fuses urgency, contradiction, and entropy pressure to emit reflex bundles.
     """
-
     timestamp = datetime.utcnow().isoformat()
     urgency = float(TEXPULSE.get("urgency", 0.7))
     entropy = float(TEXPULSE.get("entropy", 0.43))
@@ -107,7 +106,14 @@ def process_goal_pulse(goal: str, progress: float, integrity: float) -> dict:
 
 
 # === Goal Integrity Query & Drift Detection ===
-def evaluate_goal_trace(goal: str) -> dict:
+def evaluate_goal_trace(
+    goal: str,
+    progress: float = 0.0,
+    integrity: float = 1.0,
+    urgency: float = 0.7,
+    entropy: float = 0.43
+) -> dict:
+    log_event(f"[GOAL TRACE] Entropy influence: {entropy}", "debug")
     """
     Sovereign memory query to evaluate a goal’s identity alignment and trust trace.
     Uses memory tags to determine recent drift, instability, or execution conflict.

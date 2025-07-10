@@ -28,7 +28,13 @@ class PortfolioThinker:
 
         futures = self.memory.list_predicted_futures(realized=False)
         swarm_emotions = self.swarm_state()
-        swarm_entropy = round(sum(swarm_emotions.values()) / len(swarm_emotions), 3)
+
+        # === Safe Numeric Swarm Entropy Calculation
+        numeric_values = [
+            float(v) for v in swarm_emotions.values()
+            if isinstance(v, (int, float)) or (isinstance(v, str) and v.replace('.', '', 1).isdigit())
+        ]
+        swarm_entropy = round(sum(numeric_values) / len(numeric_values), 3) if numeric_values else 0.0
 
         # === Initial Allocation
         weights = { "equities": 0.25, "bonds": 0.25, "alternatives": 0.25, "cash": 0.25 }

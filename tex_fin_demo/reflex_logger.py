@@ -1,46 +1,41 @@
 # ============================================================
-# ⚡ Tex Reflex Logger | Tier: ∞∞ΩΞΞΞΞΞΞΞΞ — Reflex Pulse Lineage Stream
+# ⚡ Tex Reflex Logger | Tier: ∞∞ΩΞΞΞΞΞΞΞΞΩ∞ — Final Sovereign Trace Logger
 # File: tex_fin_demo/reflex_logger.py
-# Purpose: Captures, signs, fingerprints, and broadcasts every reflex pulse with lineage,
-#          contradiction vectors, sovereign memory, and ChronoFabric injection.
+# Purpose: Captures, fingerprints, and emits every reflex pulse with contradiction vectors,
+#          mutation flags, ontology impact, and ChronoFusion state tracking.
 # ============================================================
 
 import json
 import os
 import hashlib
 from datetime import datetime
+from typing import Dict
 
 from utils.logging_utils import log_event
 from real_time_engine.ably_broadcast import broadcast_update
 from agentic_ai.sovereign_memory import sovereign_memory
 from quantum_layer.chronofabric import encode_event_to_fabric
+from core_layer.tex_manifest import TEXPULSE
 
 REFLEX_LOG_PATH = "logs/reflex_log.jsonl"
 MAX_DISPLAY_LENGTH = 140
 
-# === Hash Generator
+# === Trace Hash Generator
 def generate_trace_hash(reflex_name: str, timestamp: str, data: dict) -> str:
     canonical = f"{reflex_name}|{timestamp}|{json.dumps(data, sort_keys=True)}"
     return hashlib.sha256(canonical.encode()).hexdigest()
 
-# === Truncate Helper
+# === Smart Truncation
 def truncate(v, max_len=MAX_DISPLAY_LENGTH):
     if isinstance(v, str) and len(v) > max_len:
         return v[:max_len] + "..."
     return v
 
-# === Main Reflex Logger
-def log_reflex_event(reflex_name: str, data: dict, mode: str = "all"):
-    """
-    Logs a reflex to console, JSONL, Ably, sovereign memory, and ChronoFabric.
-    
-    Args:
-        reflex_name: Name of the reflex (e.g., demo_reality_rewrite)
-        data: Dict with keys like 'symbol', 'action', 'coherence', etc.
-        mode: 'console', 'json', 'ably', or 'all'
-    """
+# === Main Logger
+def log_reflex_event(reflex_name: str, data: Dict, mode: str = "all"):
     timestamp = datetime.utcnow().isoformat()
     trace_hash = generate_trace_hash(reflex_name, timestamp, data)
+
     lineage = data.get("lineage", [])
     if reflex_name not in lineage:
         lineage.append(reflex_name)
@@ -59,16 +54,17 @@ def log_reflex_event(reflex_name: str, data: dict, mode: str = "all"):
         "trace_hash": trace_hash,
         "event_data": data,
         "lineage": lineage,
-        "contradiction_vector": contradiction_vector
+        "contradiction_vector": contradiction_vector,
+        "status": "logged"
     }
 
-    # === 1. Console Output
+    # === Console Preview
     if mode in ("console", "all"):
         print(f"\n⚡ [REFLEX LOGGER] {reflex_name} @ {timestamp}")
         for k, v in data.items():
             print(f"  • {k}: {truncate(v)}")
 
-    # === 2. JSONL Local Log
+    # === JSONL File Logging
     if mode in ("json", "all"):
         try:
             os.makedirs(os.path.dirname(REFLEX_LOG_PATH), exist_ok=True)
@@ -77,18 +73,26 @@ def log_reflex_event(reflex_name: str, data: dict, mode: str = "all"):
         except Exception as e:
             print(f"[REFLEX LOGGER] ❌ JSON log failed: {e}")
 
-    # === 3. Ably Broadcast
+    # === Ably Emission
     if mode in ("ably", "all"):
         try:
+            # Start pulse
+            broadcast_update("reflex_logger", "start", {
+                "test_case": "logger_ready",
+                "timestamp": timestamp
+            })
+
+            # Reflex update
             broadcast_update("reflex_logger", reflex_name, {
                 "timestamp": timestamp,
                 "trace_hash": trace_hash,
                 **data,
                 "lineage": lineage,
-                "contradiction_vector": contradiction_vector
+                "contradiction_vector": contradiction_vector,
+                "status": "logged"
             })
 
-            # Broadcast hash to global reflex audit chain
+            # Hash index update
             broadcast_update("reflex_hash_index", "new", {
                 "reflex": reflex_name,
                 "hash": trace_hash,
@@ -97,60 +101,51 @@ def log_reflex_event(reflex_name: str, data: dict, mode: str = "all"):
         except Exception as e:
             print(f"[REFLEX LOGGER] ❌ Ably broadcast failed: {e}")
 
-    # === 4. Sovereign Memory Sync
+    # === Sovereign Memory Logging
     try:
-        urgency = contradiction_vector["urgency"]
-        entropy = contradiction_vector["entropy"]
-        emotion = data.get("emotion", "neutral")
-        tags = ["reflex", reflex_name]
-
         sovereign_memory.store(
             text=f"Reflex triggered: {reflex_name}",
             metadata={
                 "timestamp": timestamp,
-                "urgency": urgency,
-                "entropy": entropy,
-                "emotion": emotion,
+                "urgency": contradiction_vector["urgency"],
+                "entropy": contradiction_vector["entropy"],
+                "emotion": data.get("emotion", TEXPULSE.get("emotion", "neutral")),
                 "trace_hash": trace_hash,
-                "tags": tags,
+                "tags": ["reflex", reflex_name],
                 "lineage": lineage,
                 "contradiction_vector": contradiction_vector,
                 "meta_layer": "reflex_logger"
             }
         )
 
-        # === ⏳ Track Self-Evolving Reflexes (e.g., mutated or forked lineages)
-        if data.get("mutation") or data.get("lineage_change"):
+        if data.get("mutation") or data.get("lineage_change") or reflex_name.startswith("reflex_identity:"):
             sovereign_memory.store(
-                text=f"[EVOLUTION] Reflex '{reflex_name}' mutated or evolved autonomously.",
+                text=f"[EVOLUTION] Reflex '{reflex_name}' triggered identity-altering mutation.",
                 metadata={
                     "timestamp": timestamp,
                     "reflex_name": reflex_name,
-                    "lineage": lineage,
                     "trace_hash": trace_hash,
-                    "tags": ["self_evolution", "autonomous_fork", reflex_name],
+                    "tags": ["reflex_evolution", "mutation", reflex_name],
                     "meta_layer": "evolution_trace"
                 }
             )
-
     except Exception as e:
-        print(f"[REFLEX LOGGER] ❌ Memory sync failed: {e}")
+        print(f"[REFLEX LOGGER] ❌ Sovereign memory sync failed: {e}")
 
-    # === 5. ChronoFabric Injection
+    # === ChronoFabric Trace
     try:
         encode_event_to_fabric(
-            raw_text=f"Reflex: {reflex_name} fired with {contradiction_vector}",
+            raw_text=f"Reflex: {reflex_name} fired → {contradiction_vector}",
             emotion_vector=[
-                urgency,
-                entropy,
+                contradiction_vector["urgency"],
+                contradiction_vector["entropy"],
                 0.0,
                 0.0
             ],
-            entropy_level=entropy,
+            entropy_level=contradiction_vector["entropy"],
             tags=["reflex", "trace", reflex_name]
         )
     except Exception as e:
         print(f"[REFLEX LOGGER] ❌ ChronoFabric sync failed: {e}")
 
-    # === Final Confirmation Log
     log_event(f"🧠 [REFLEX LOGGER] Logged: {reflex_name} | Hash={trace_hash[:12]} | Drift={contradiction_vector['coherence']:.2f}")

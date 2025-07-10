@@ -34,7 +34,7 @@ class MasterTexOrchestrator:
         # === Optional Hub: Reinforcement Reasoner
         self.hub = TexExecutionHub(strategy_scoring=self.strategy_scoring)
 
-    def run_cycle(self):
+    def run_cycle(self, forced_action=None):
         cycle_tag = uuid4().hex
         cycle_timestamp = datetime.utcnow().isoformat()
 

@@ -28,19 +28,46 @@ except ImportError:
 # === Sovereign Logging Level
 LOG_LEVEL = os.getenv("TEX_LOG_LEVEL", "INFO").upper()
 
-# === Ω Log Formatter (Chrono + Contextual)
+# === Ω Log Formatter (Chrono + Contextual) — Fully Reflex Safe
 class OmegaFormatter(logging.Formatter):
     def format(self, record):
         ts = datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S.%f')[:-3]
-        base = f"[{ts}] [{record.levelname}] :: {record.name} :: {record.getMessage()}"
+        try:
+            message = record.getMessage()
+        except Exception as e:
+            message = f"[FORMAT ERROR] {repr(e)}"
+        try:
+            base = f"[{ts}] [{record.levelname}] :: {record.name} :: {str(message)}"
+        except Exception as e:
+            base = f"[{ts}] [{record.levelname}] :: {record.name} :: [STR CONVERSION FAIL: {repr(e)}]"
         if record.exc_info:
-            base += f"\n⚠️ Trace:\n{self.formatException(record.exc_info)}"
+            try:
+                base += f"\n⚠️ Trace:\n{self.formatException(record.exc_info)}"
+            except Exception as e:
+                base += f"\n⚠️ Trace format error: {repr(e)}"
         return base
 
 # === Console Stream
 console_handler = logging.StreamHandler(sys.stdout)
 console_handler.setLevel(LOG_LEVEL)
 console_handler.setFormatter(OmegaFormatter())
+
+# === Safe Logger Patch (Accepts Any Type)
+class SafeLogger(logging.Logger):
+    def info(self, msg, *args, **kwargs):
+        super().info(str(msg), *args, **kwargs)
+    def warning(self, msg, *args, **kwargs):
+        super().warning(str(msg), *args, **kwargs)
+    def error(self, msg, *args, **kwargs):
+        super().error(str(msg), *args, **kwargs)
+    def debug(self, msg, *args, **kwargs):
+        super().debug(str(msg), *args, **kwargs)
+    def critical(self, msg, *args, **kwargs):
+        super().critical(str(msg), *args, **kwargs)
+    def exception(self, msg, *args, **kwargs):
+        super().exception(str(msg), *args, **kwargs)
+
+logging.setLoggerClass(SafeLogger)
 
 # === Central Logger
 log = logging.getLogger("TexLogger")
@@ -49,26 +76,36 @@ if not log.hasHandlers():
     log.addHandler(console_handler)
 log.propagate = False
 
-# === Ω Log Dispatcher (Reflex-Safe)
-def log_event(message: str, level: str = "info", metadata: dict = None):
+# === Ω Log Dispatcher (Fully Safe Reflex Logging)
+def log_event(message, level: str = "info", metadata: dict = None):
     """
     Sovereign reflex logging function with optional telemetry stream.
+    Bulletproof against non-string input and runtime exceptions.
     """
-    level_method = getattr(log, level.lower(), log.info)
-    timestamp = datetime.utcnow().isoformat()
-    level_method(f"{message}")
+    try:
+        safe_message = str(message)
+        timestamp = datetime.utcnow().isoformat()
+        level_method = getattr(log, level.lower(), log.info)
 
-    if WANDB_ENABLED:
-        try:
-            wandb.log({f"log/{level.lower()}": message, "timestamp": timestamp})
-        except Exception:
-            log.warning("⚠️ WandB logging failed.")
+        # Core Logging
+        level_method(safe_message)
 
-    if MLFLOW_ENABLED:
-        try:
-            mlflow.log_param(f"log_{level.lower()}", message)
-        except Exception:
-            log.warning("⚠️ MLflow logging failed.")
+        # Optional Telemetry
+        if WANDB_ENABLED:
+            try:
+                wandb.log({f"log/{level.lower()}": safe_message, "timestamp": timestamp})
+            except Exception:
+                log.warning("⚠️ WandB logging failed.")
+
+        if MLFLOW_ENABLED:
+            try:
+                mlflow.log_param(f"log_{level.lower()}", safe_message)
+            except Exception:
+                log.warning("⚠️ MLflow logging failed.")
+
+    except Exception as logging_failure:
+        print("❌ [LOGGING SYSTEM FAILURE]", str(logging_failure))
+        print("🪵 [FAILED LOG MESSAGE]", repr(message))
 
 # === 🧠 Cognitive Decorator for Reflex-Aware Functions
 def cognitive_trace(level: str = "info"):
@@ -121,4 +158,6 @@ def log_reasoning_step(source: str, input_text: str, output_text: str, confidenc
         log.info(f"[REASONING TRACE] {text}")
 
     except Exception as e:
-        log.warning(f"⚠️ Reasoning trace failed: {e}")
+        print("🔥 HARD FAIL — EXCEPTION CAUGHT DURING log_reasoning_step")
+        traceback.print_exc()
+        log_event(f"❌ [REASONING TRACE ERROR]: {repr(e)}", level="error")

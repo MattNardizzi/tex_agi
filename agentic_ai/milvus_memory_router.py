@@ -175,7 +175,35 @@ class MilvusMemoryRouter:
     def recall_recent(self, minutes: int = 5, top_k: int = 10) -> list:
         print("⚠️ [RECALL] REST API does not support direct timestamp filtering.")
         return []
+    def query_by_tags(self, tags: list, top_k: int = 10):
+        try:
+            tag_filter = ",".join(tags)
+            res = requests.post(
+                f"{self.endpoint}/v2/vectordb/entities/query",
+                headers=self.headers,
+                json={
+                    "collectionName": self.collection,
+                    "filter": {
+                        "tags": {
+                            "match": tag_filter
+                        }
+                    },
+                    "limit": top_k,
+                    "outputFields": ["summary", "timestamp", "tags", "entropy"]
+                },
+                timeout=10
+            )
 
+            if res.status_code != 200:
+                print(f"❌ [TAG QUERY FAILED] HTTP {res.status_code} → {res.text[:200]}")
+                return []
+
+            return res.json().get("data", [])
+
+        except Exception as e:
+            print("❌ [TAG QUERY ERROR]")
+            traceback.print_exc()
+            return []
 # === Cortex Export ===
 memory_router = MilvusMemoryRouter()
 
